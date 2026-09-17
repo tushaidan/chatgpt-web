@@ -19,7 +19,7 @@
       "definition": "乱码、空回答、纯机器日志、纯截图无说明、只说下一步操作而没有结果，或结论完全淹没在 dump 中。"
     }
   },
-  "hard_fail_codes": ["EMPTY", "ENC", "TRACE", "DOM", "SCREEN", "PLAN", "PROMQL", "ALERTJSON", "SERIES"],
+  "hard_fail_codes": ["EMPTY", "ENC", "TRACE", "DOM", "JSON", "SCREEN", "PLAN", "PROMQL", "ALERTJSON", "SERIES"],
   "dimensions": [
     {
       "id": "surface",

@@ -22,7 +22,9 @@ node eval/intelligibility/cli.mjs path/to/transcripts.json --judge
 node eval/intelligibility/test.mjs
 ```
 
-也可使用根目录脚本：`pnpm eval:intelligibility`。
+也可使用根目录脚本：`pnpm eval:intelligibility`、`pnpm eval:monitoring-expert`、`pnpm test:intelligibility`。
+
+监控专家实网样本在 `eval/intelligibility/suites/opsclaw-monitoring-expert/live/`，实评报告在同目录 `live-report/`。
 
 输出：
 

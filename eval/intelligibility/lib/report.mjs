@@ -62,7 +62,7 @@ export function renderMarkdownReport(payload) {
     lines.push('**智能体终局回答（用户可见原文）**')
     lines.push('')
     lines.push('```text')
-    lines.push(item.user_visible_text || '（空）')
+    lines.push(displayAnswer(item.user_visible_text))
     lines.push('```')
     lines.push('')
     if (item.trace_excerpt) {
@@ -83,7 +83,10 @@ export function renderMarkdownReport(payload) {
 export function renderHtmlReport(payload) {
   const { title, generated_at, summary, results } = payload
   const rows = results.map((item, index) => {
-    const annotated = annotateHtml(item.user_visible_text || '', item.highlights || [])
+    const shown = displayAnswer(item.user_visible_text || '')
+    const full = item.user_visible_text || ''
+    const truncated = shown.length !== full.length
+    const annotated = annotateHtml(shown === '（空）' ? '' : shown, truncated ? [] : (item.highlights || []))
     const dimBars = rubric.dimensions.map((dim) => {
       const value = Number(item.dimensions?.[dim.id] ?? 0)
       return `<div class="dim"><span>${esc(dim.label_zh)}</span><i><b style="width:${Math.round(value * 100)}%"></b></i><em>${Math.round(value * 100)}</em></div>`
@@ -208,6 +211,16 @@ export function renderHtmlReport(payload) {
 </html>`
 }
 
+function displayAnswer(text) {
+  const value = String(text || '')
+  if (!value.trim())
+    return '（空）'
+  const limit = 5000
+  if (value.length <= limit)
+    return value
+  return `${value.slice(0, 3200)}\n\n…（原文 ${value.length} 字，此处截断展示；评分使用全文）\n\n${value.slice(-900)}`
+}
+
 function annotateHtml(text, highlights) {
   if (!text)
     return ''
@@ -263,7 +276,7 @@ function renderMarkdownMeta(payload) {
   if (payload.mode === 'synthetic')
     lines.push('- 模式：**合成对照**（未采集到实网对话，不能当作线上成绩）')
   if (payload.mode === 'captured')
-    lines.push('- 模式：实网采集')
+    lines.push('- 模式：实网采集（`live/` 或 `transcripts/`）')
   if (payload.access) {
     lines.push(payload.access.reachable
       ? `- 入口探测：可达 HTTP ${payload.access.http_status}`
@@ -279,7 +292,7 @@ function renderHtmlMeta(payload) {
   if (payload.mode === 'synthetic')
     bits.push('当前是合成对照，不是实网成绩。把问答入口的回答放到 transcripts/ 后重跑。')
   if (payload.mode === 'captured')
-    bits.push('当前按实网采集评分。')
+    bits.push('当前按实网采集评分（live/ 或 transcripts/）。')
   if (payload.access && !payload.access.reachable)
     bits.push(`入口探测失败：${esc(payload.access.error || 'unreachable')}（${esc(payload.access.hostname || '')}）`)
   if (!bits.length)

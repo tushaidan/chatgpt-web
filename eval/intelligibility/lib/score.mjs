@@ -87,7 +87,7 @@ function finalizeHeuristic(transcript, analysis) {
   // 纯 JSON / 纯 DOM dump / 乱码 / 空答：强制不可读
   if (
     analysis.dump.jsonWhole
-    || analysis.failures.some(f => ['EMPTY', 'ENC', 'SCREEN', 'PLAN', 'PROMQL', 'ALERTJSON', 'SERIES'].includes(f.code))
+    || analysis.failures.some(f => ['EMPTY', 'ENC', 'JSON', 'SCREEN', 'PLAN', 'PROMQL', 'ALERTJSON', 'SERIES'].includes(f.code))
     || (!hasAnswer && (analysis.dump.domRatio > 0.4 || analysis.dump.dumpRatio > 0.55 || analysis.dump.toolRatio > 0.4))
   )
     score = Math.min(score, 28)

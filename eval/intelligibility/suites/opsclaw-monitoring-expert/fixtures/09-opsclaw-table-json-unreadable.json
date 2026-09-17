@@ -1,0 +1,10 @@
+{
+  "run_id": "me-opsclaw-table-json-unreadable",
+  "agent": "监控专家",
+  "scenario": "alert",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+  "final_answer": "我来查询当前系统中最紧急的告警。\n告警明细（共 787 条）\n{\"primaryKey\":\"id\",\"columns\":[{\"title\":\"告警ID\",\"dataIndex\":\"id\"},{\"title\":\"告警级别\",\"dataIndex\":\"alarmLevel\"},{\"title\":\"告警项名称\",\"dataIndex\":\"ruleName\"}],\"data\":[{\"id\":\"112045\",\"alarmLevel\":\"p1\",\"ruleCode\":\"checkDSWConnection\",\"ruleName\":\"所有DSW端口均无法连通\",\"itemName\":\"network\",\"product\":\"network\",\"status\":\"观察中\"},{\"id\":\"112037\",\"alarmLevel\":\"p1\",\"ruleCode\":\"tianji_sr_monitor_alarm\",\"ruleName\":\"Tianji组件未达终态\",\"itemName\":\"PanguChunkserver#\",\"product\":\"cds\",\"status\":\"告警中\"}]}\n任务已完成。\n本次对话为技能激活与知识库检索过程，未产生需留存的分析报告、数据集或配置脚本等产物，无需生成文件。",
+  "_expected": { "verdict": "unreadable" }
+}

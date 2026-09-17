@@ -3,6 +3,7 @@
 ### Other
 - 新增浏览器 Agent 回答可理解度评测方案与报告工具（`docs/browser-agent-intelligibility-eval.md`，`eval/intelligibility/`）
 - 新增 OpsClaw「监控专家」专项评测套件（内网问答入口 + 值班题库）
+- 写入监控专家 11 轮实网粘贴样本并生成可理解度实评报告（`live/` + `live-report/`）；告警表 JSON / 裸 JSON stub 现按人看不懂处理
 
 ## v2.10.9
 

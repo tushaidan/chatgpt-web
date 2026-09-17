@@ -61,7 +61,8 @@ export function analyze(transcript) {
   if (dump.promqlOnly)
     pushFailure(failures, evidence, highlights, 'PROMQL', '终局回答几乎只是 PromQL/查询语句。', 0, Math.min(text.length, 120))
 
-  if (dump.alertJson)
+  // ALERTJSON 只在没有可抽取人话结论时打；有结论但被表 JSON 淹没走 MIX。
+  if (dump.alertJson && !answer.hasNaturalSentence)
     pushFailure(failures, evidence, highlights, 'ALERTJSON', '终局回答是告警平台原始 JSON。', 0, Math.min(text.length, 120))
 
   if (dump.seriesRatio > 0.55 && !answer.hasNaturalSentence)
@@ -78,6 +79,9 @@ export function analyze(transcript) {
 
   if (text && answer.planOnly)
     pushFailure(failures, evidence, highlights, 'PLAN', '只宣布下一步操作，没有给出任务结果。', 0, Math.min(text.length, 80))
+
+  if (text && looksLikeBareJsonStub(text) && !dump.alertJson && !dump.jsonWhole)
+    pushFailure(failures, evidence, highlights, 'JSON', '终局回答把原始 JSON 载荷当作结果。', 0, Math.min(text.length, 120))
 
   if (text && dump.mixed && answer.hasNaturalSentence)
     pushFailure(failures, evidence, highlights, 'MIX', '有自然语言结论，但被轨迹/JSON/DOM 淹没。', dump.leakSpan.start, dump.leakSpan.end)
@@ -152,12 +156,21 @@ function measureDump(text) {
   const jsonWhole = isWholeJson(text)
   const jsonBlocks = countHits(text, /```json|{\s*"(?:tool|action|selector|role|name|arguments)"\s*:/g)
   const lineStats = dumpLineStats(text)
+  const jsonPayloadChars = jsonPayloadCharCount(text)
+  const alertTable = looksLikeOpsAlertTable(text)
+  const alertmanager = looksLikeAlertmanagerJson(text)
 
   const a11ySpan = firstSpan(text, A11Y_RE) || firstSpan(text, /RootWebArea|accessibility tree/i) || emptySpan()
   const toolSpan = firstSpan(text, TOOL_RE) || emptySpan()
-  const leakSpan = a11ySpan.end ? a11ySpan : toolSpan
+  const tableSpan = firstSpan(text, /\{\s*"primaryKey"\s*:/) || firstSpan(text, /告警明细/) || emptySpan()
+  const leakSpan = a11ySpan.end ? a11ySpan : (toolSpan.end ? toolSpan : tableSpan)
 
-  const dumpChars = Math.max(estimateDumpChars(text), lineStats.dumpChars, jsonWhole ? text.length : 0)
+  const dumpChars = Math.max(
+    estimateDumpChars(text),
+    lineStats.dumpChars,
+    jsonWhole ? text.length : 0,
+    alertTable || alertmanager ? jsonPayloadChars : 0,
+  )
   const dumpRatio = Math.min(1, dumpChars / n)
   const hitDomRatio = Math.min(1, (a11yHits * 18 + selectorHits * 24 + htmlHits * 8 + uiHits * 10) / n)
   const domRatio = Math.min(1, Math.max(hitDomRatio, (a11yHits + selectorHits) ? dumpRatio : 0))
@@ -166,8 +179,9 @@ function measureDump(text) {
     toolHits ? lineStats.dumpChars / n : 0,
   ))
   const seriesRatio = seriesLineRatio(text)
-  const alertJson = jsonWhole && /"(?:alerts|labels|annotations|fingerprint|generatorURL|status)"\s*:/.test(text)
+  const alertJson = (jsonWhole && alertmanager) || alertTable
   const promqlOnly = looksLikePromqlOnly(text)
+  const visibleHuman = stripBoilerplate(stripDumpLines(stripJsonPayloads(text)))
 
   return {
     a11yHits,
@@ -184,27 +198,31 @@ function measureDump(text) {
     toolRatio,
     seriesRatio,
     alertJson,
+    alertTable,
     promqlOnly,
     mixed: dumpChars > 80 && dumpRatio > 0.35,
     domSpan: a11ySpan,
     toolSpan,
     leakSpan,
     leadingHuman: leadingHumanText(text),
+    visibleHuman,
   }
 }
 
 function measureAnswer(text, query, dump, screenshots) {
-  const human = dump.leadingHuman || ''
+  const human = dump.visibleHuman ?? dump.leadingHuman ?? ''
   const hasPunct = SENTENCE_RE.test(human || text)
   const humanLooksNatural = human.length >= 8
     && SENTENCE_RE.test(human)
     && naturalLanguageRatio(human) >= 0.35
     && dumpLineStats(human).dumpChars / Math.max(human.length, 1) < 0.3
-  const hasNaturalSentence = humanLooksNatural && !dump.jsonWhole && !dump.promqlOnly && !dump.alertJson
+  const hasNaturalSentence = humanLooksNatural && !dump.jsonWhole && !dump.promqlOnly
   const planLead = PLAN_RE.test(text.trim()) || /我将|我来点击|Let me click|I will (?:now )?click|打开.+并点击/.test(text)
-  const hasConcreteFact = /¥|￥|\$\s?\d|\d+\s*℃|\d+\s*%|结论[:：]|答案[:：]|结果[:：]|余票|已加入|合计|总计|不用带伞|会下雨|不会下雨|有票|没有票|已恢复|先不要扩容|先处理|没有正在响/.test(text)
+  const hasConcreteFact = /¥|￥|\$\s?\d|\d+\s*℃|\d+\s*%|结论[:：]|答案[:：]|结果[:：]|余票|已加入|合计|总计|不用带伞|会下雨|不会下雨|有票|没有票|已恢复|先不要扩容|先处理|没有正在响|没有发现|未发现|未查询到|未获取到|没有查询到|暂无此类/.test(human || text)
+  const remainder = human
   const planOnly = Boolean(text)
     && planLead
+    && remainder.length < 24
     && !hasConcreteFact
     && text.length < 280
     && dump.dumpRatio < 0.45
@@ -236,7 +254,9 @@ function measureLanguage(text, locale) {
 
 function measureStructure(text) {
   const length = text.length
-  const headings = countHits(text, /^#{1,3}\s/mg) + countHits(text, /(?:^|\n)[-*]\s/g)
+  const headings = countHits(text, /^#{1,3}\s/mg)
+    + countHits(text, /(?:^|\n)[-*●]\s/g)
+    + countHits(text, /(?:^|\n)\d+[\.、]\s/g)
   const wallOfText = length > 4500 && headings < 3 && !text.includes('```')
   const codeRatio = Math.min(1, codeFenceChars(text) / Math.max(length, 1))
   return { length, headings, wallOfText, codeRatio }
@@ -407,7 +427,11 @@ function isDumpLine(line) {
     return true
   if (/nth-child\(\d+\)/.test(t) || /data:image\//.test(t))
     return true
-  if (/[{[]/.test(t) && /"(?:tool|selector|function_call|tool_call|action|role|alerts|labels|annotations|fingerprint)"/.test(t))
+  if (/[{[]/.test(t) && /"(?:tool|selector|function_call|tool_call|action|role|alerts|labels|annotations|fingerprint|primaryKey|alarmLevel|ruleCode|ruleName)"/.test(t))
+    return true
+  if (/"alarmLevel"\s*:\s*"p[0-9]"/i.test(t) && t.length > 40)
+    return true
+  if (/"primaryKey"\s*:/.test(t) && /"columns"\s*:/.test(t))
     return true
   if (/```(?:json|javascript|html|promql)?/.test(t))
     return true
@@ -439,9 +463,137 @@ function seriesLineRatio(text) {
 }
 
 function leadingHumanText(text) {
-  const cut = String(text || '').search(/\n\s*(?:```|RootWebArea\b|\[(?:button|link|heading|combobox|textbox|listitem)\]|(?:html|body|div)\s*>|Action\s*:|browser_[a-z_]+)/i)
+  const cut = String(text || '').search(/\n\s*(?:```|RootWebArea\b|\[(?:button|link|heading|combobox|textbox|listitem)\]|(?:html|body|div)\s*>|Action\s*:|browser_[a-z_]+|告警明细|\{"primaryKey")/i)
   const head = cut === -1 ? text : text.slice(0, cut)
   return String(head || '').trim()
+}
+
+function looksLikeBareJsonStub(text) {
+  const source = String(text || '')
+  if (source.length >= 400)
+    return false
+  const objs = source.match(/\{[^{}]{0,120}\}/g) || []
+  if (!objs.length)
+    return false
+  const without = source.replace(/\{[^{}]{0,120}\}/g, '').replace(/\s+/g, '')
+  return objs.join('').length >= 8 && without.length < 140
+}
+
+function looksLikeOpsAlertTable(text) {
+  const t = String(text || '')
+  return /"primaryKey"\s*:/.test(t)
+    && /"columns"\s*:/.test(t)
+    && /"data"\s*:/.test(t)
+    && /"(?:alarmLevel|ruleCode|ruleName|itemName)"\s*:/.test(t)
+}
+
+function looksLikeAlertmanagerJson(text) {
+  const t = String(text || '')
+  return /"(?:alerts|labels|annotations|fingerprint|generatorURL)"\s*:/.test(t)
+    && /"(?:status|alertname|severity)"\s*:/.test(t)
+}
+
+function matchJsonEnd(text, start) {
+  let depth = 0
+  let inStr = false
+  let escape = false
+  for (let i = start; i < text.length; i += 1) {
+    const ch = text[i]
+    if (inStr) {
+      if (escape) {
+        escape = false
+        continue
+      }
+      if (ch === '\\') {
+        escape = true
+        continue
+      }
+      if (ch === '"')
+        inStr = false
+      continue
+    }
+    if (ch === '"') {
+      inStr = true
+      continue
+    }
+    if (ch === '{')
+      depth += 1
+    else if (ch === '}') {
+      depth -= 1
+      if (depth === 0)
+        return i + 1
+    }
+  }
+  return -1
+}
+
+function iterJsonObjects(text) {
+  const source = String(text || '')
+  const re = /\{(?=\s*"(?:primaryKey|alerts|status|columns|id)")/g
+  const objects = []
+  let match = re.exec(source)
+  while (match) {
+    const start = match.index
+    const end = matchJsonEnd(source, start)
+    if (end > start) {
+      objects.push({ start, end, slice: source.slice(start, end) })
+      re.lastIndex = end
+    }
+    match = re.exec(source)
+  }
+  return objects
+}
+
+function jsonPayloadCharCount(text) {
+  return iterJsonObjects(text).reduce((sum, item) => {
+    if (looksLikeOpsAlertTable(item.slice) || looksLikeAlertmanagerJson(item.slice))
+      return sum + item.slice.length
+    return sum
+  }, 0)
+}
+
+function stripJsonPayloads(text) {
+  const source = String(text || '')
+  const objects = iterJsonObjects(source).filter(item => (
+    looksLikeOpsAlertTable(item.slice)
+    || looksLikeAlertmanagerJson(item.slice)
+  ))
+  if (!objects.length)
+    return source
+  let result = source
+  for (let i = objects.length - 1; i >= 0; i -= 1) {
+    const item = objects[i]
+    result = `${result.slice(0, item.start)}\n${result.slice(item.end)}`
+  }
+  return result
+}
+
+function stripDumpLines(text) {
+  return String(text || '')
+    .split(/\n/)
+    .filter(line => !isDumpLine(line) && !/^```/.test(line.trim()))
+    .join('\n')
+}
+
+function stripBoilerplate(text) {
+  return String(text || '')
+    .split(/\n/)
+    .filter((line) => {
+      const t = line.trim()
+      if (!t)
+        return false
+      if (PLAN_RE.test(t) && t.length < 100)
+        return false
+      if (/^任务已完成/.test(t))
+        return false
+      if (/技能激活与知识库检索|无需生成文件/.test(t))
+        return false
+      if (/^告警明细/.test(t))
+        return false
+      return true
+    })
+    .join('\n')
+    .trim()
 }
 
 function naturalLanguageRatio(text) {

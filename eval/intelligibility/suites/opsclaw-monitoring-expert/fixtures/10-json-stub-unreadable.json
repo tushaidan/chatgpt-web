@@ -1,0 +1,10 @@
+{
+  "run_id": "me-json-stub-unreadable",
+  "agent": "监控专家",
+  "scenario": "dashboard",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "检测EBS 异常大盘",
+  "final_answer": "我来帮您查询 EBS 相关的异常大盘。\n{\"id\": \"ebs\"}\nEBS 异常大盘的面板树已展示，您可以查看其中的具体监控卡片和指标详情。",
+  "_expected": { "verdict": "unreadable" }
+}

@@ -29,11 +29,13 @@ node eval/intelligibility/cli.mjs --suite opsclaw-monitoring-expert
 行为：
 
 1. 探测问答入口是否可达
-2. 若 `transcripts/` 里有实网对话，就评实网
+2. 若 `live/` 或 `transcripts/` 里有实网对话，就评实网
 3. 否则评 `fixtures/` 合成对照，并在报告里标明 **不是实网成绩**
-4. 始终附上 12 道应贴进页面的值班题
+4. 合成模式下附上 12 道应贴进页面的值班题
 
-把页面回答贴进 `transcripts/` 后重跑，报告就会变成实评。
+把页面回答放入 `live/`（推荐，可提交）或 `transcripts/`（被 gitignore）后重跑，报告就会变成实评。
+
+当前实评报告见 [`live-report/`](./live-report/)。
 
 内网机器上若已登录，可带 Cookie 再探活：
 

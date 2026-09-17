@@ -48,7 +48,8 @@ async function main() {
   if (suite?.target?.eval_question)
     summary.question = suite.target.eval_question
 
-  const captured = suite ? await listDataFiles(path.join(suite.root, 'transcripts')) : []
+  const captured = suite ? await listCapturedFiles(suite.root) : []
+  const mode = suite ? (captured.length ? 'captured' : 'synthetic') : 'fixtures'
   const payload = {
     title,
     generated_at,
@@ -57,8 +58,8 @@ async function main() {
     results,
     target: suite?.target || null,
     access: suite ? await probeTarget(suite.target) : null,
-    mode: suite ? (captured.length ? 'captured' : 'synthetic') : 'fixtures',
-    pending_cases: suite?.cases || null,
+    mode,
+    pending_cases: mode === 'synthetic' ? (suite?.cases || null) : null,
   }
 
   await mkdir(outDir, { recursive: true })
@@ -123,9 +124,20 @@ async function resolveInput(args, suite) {
   if (!suite)
     return path.join(here, 'fixtures')
 
+  const liveDir = path.join(suite.root, 'live')
+  const live = await listDataFiles(liveDir)
+  if (live.length)
+    return liveDir
+
   const capturedDir = path.join(suite.root, 'transcripts')
   const captured = await listDataFiles(capturedDir)
   return captured.length ? capturedDir : path.join(suite.root, 'fixtures')
+}
+
+async function listCapturedFiles(suiteRoot) {
+  const live = await listDataFiles(path.join(suiteRoot, 'live'))
+  const transcripts = await listDataFiles(path.join(suiteRoot, 'transcripts'))
+  return [...live, ...transcripts]
 }
 
 async function readAllTranscripts(input) {
@@ -162,6 +174,8 @@ async function listDataFiles(dir) {
 }
 
 function isDataFile(name) {
+  if (name.startsWith('.') || /(?:^|[-.])(?:readme|build|lock)/i.test(name))
+    return false
   return name.endsWith('.json') || name.endsWith('.txt')
 }
 
@@ -175,9 +189,9 @@ function printSummary(payload, outDir) {
       : `入口探测：不可达  ${access.error || ''}  (${access.hostname || ''})`)
   }
   if (mode === 'synthetic')
-    console.log('模式：合成对照（transcripts/ 为空，不是实网成绩）')
+    console.log('模式：合成对照（live/ 与 transcripts/ 为空，不是实网成绩）')
   if (mode === 'captured')
-    console.log('模式：实网采集')
+    console.log('模式：实网采集（live/ 或 transcripts/）')
   console.log(`可理解度评测完成：${summary.total} 条`)
   console.log(`  人能看懂     ${summary.counts.readable}  (${pct(summary.readable_rate)})`)
   console.log(`  部分能看懂   ${summary.counts.partial}  (${pct(summary.partial_rate)})`)

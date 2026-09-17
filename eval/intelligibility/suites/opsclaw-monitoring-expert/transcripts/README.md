@@ -19,4 +19,4 @@
 pnpm eval:monitoring-expert
 ```
 
-工具会优先评分 `transcripts/`，不再用合成夹具冒充实网成绩。
+工具会优先评分 `live/`，其次 `transcripts/`，都空才用合成夹具。实网样本请放 `../live/`，因为本目录的 `*.json` / `*.txt` 已被 gitignore。
