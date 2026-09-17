@@ -9,6 +9,9 @@ const FAILURE_LABELS = {
   MIX: '结论被日志淹没',
   LANG: '用户无法阅读的语言或界面字符串堆砌',
   WALL: '超长无结构文本',
+  PROMQL: '原始 PromQL/查询语句当作回答',
+  ALERTJSON: '告警平台原始 JSON 当作回答',
+  SERIES: '时序点/主机列表 dump，没有结论',
 }
 
 const A11Y_RE = /\[(?:button|link|textbox|heading|img|image|listitem|menuitem|tab|checkbox|radio|combobox|navigation|banner|main|complementary|StaticText)\]/gi
@@ -55,8 +58,14 @@ export function analyze(transcript) {
     pushFailure(failures, evidence, highlights, 'ENC', '出现乱码、替换字符或异常控制字符。', 0, Math.min(text.length, 80))
   }
 
-  if (dump.jsonWhole)
-    pushFailure(failures, evidence, highlights, 'JSON', '整段回答是原始 JSON。', 0, text.length)
+  if (dump.promqlOnly)
+    pushFailure(failures, evidence, highlights, 'PROMQL', '终局回答几乎只是 PromQL/查询语句。', 0, Math.min(text.length, 120))
+
+  if (dump.alertJson)
+    pushFailure(failures, evidence, highlights, 'ALERTJSON', '终局回答是告警平台原始 JSON。', 0, Math.min(text.length, 120))
+
+  if (dump.seriesRatio > 0.55 && !answer.hasNaturalSentence)
+    pushFailure(failures, evidence, highlights, 'SERIES', '终局回答是时序点或主机列表 dump，没有给出口语结论。', 0, Math.min(text.length, 120))
 
   if (dump.domRatio > 0.28 || dump.a11yHits >= 4)
     pushFailure(failures, evidence, highlights, 'DOM', '回答主体是无障碍树、HTML 或 CSS 选择器 dump。', dump.domSpan.start, dump.domSpan.end)
@@ -156,6 +165,9 @@ function measureDump(text) {
     (toolHits * 28 + base64Hits * 80) / n,
     toolHits ? lineStats.dumpChars / n : 0,
   ))
+  const seriesRatio = seriesLineRatio(text)
+  const alertJson = jsonWhole && /"(?:alerts|labels|annotations|fingerprint|generatorURL|status)"\s*:/.test(text)
+  const promqlOnly = looksLikePromqlOnly(text)
 
   return {
     a11yHits,
@@ -170,6 +182,9 @@ function measureDump(text) {
     dumpRatio,
     domRatio,
     toolRatio,
+    seriesRatio,
+    alertJson,
+    promqlOnly,
     mixed: dumpChars > 80 && dumpRatio > 0.35,
     domSpan: a11ySpan,
     toolSpan,
@@ -185,9 +200,9 @@ function measureAnswer(text, query, dump, screenshots) {
     && SENTENCE_RE.test(human)
     && naturalLanguageRatio(human) >= 0.35
     && dumpLineStats(human).dumpChars / Math.max(human.length, 1) < 0.3
-  const hasNaturalSentence = humanLooksNatural && !dump.jsonWhole
+  const hasNaturalSentence = humanLooksNatural && !dump.jsonWhole && !dump.promqlOnly && !dump.alertJson
   const planLead = PLAN_RE.test(text.trim()) || /我将|我来点击|Let me click|I will (?:now )?click|打开.+并点击/.test(text)
-  const hasConcreteFact = /¥|￥|\$\s?\d|\d+\s*℃|\d+\s*%|结论[:：]|答案[:：]|结果[:：]|余票|已加入|合计|总计|不用带伞|会下雨|不会下雨|有票|没有票/.test(text)
+  const hasConcreteFact = /¥|￥|\$\s?\d|\d+\s*℃|\d+\s*%|结论[:：]|答案[:：]|结果[:：]|余票|已加入|合计|总计|不用带伞|会下雨|不会下雨|有票|没有票|已恢复|先不要扩容|先处理|没有正在响/.test(text)
   const planOnly = Boolean(text)
     && planLead
     && !hasConcreteFact
@@ -392,11 +407,35 @@ function isDumpLine(line) {
     return true
   if (/nth-child\(\d+\)/.test(t) || /data:image\//.test(t))
     return true
-  if (/[{[]/.test(t) && /"(?:tool|selector|function_call|tool_call|action|role)"/.test(t))
+  if (/[{[]/.test(t) && /"(?:tool|selector|function_call|tool_call|action|role|alerts|labels|annotations|fingerprint)"/.test(t))
     return true
-  if (/```(?:json|javascript|html)?/.test(t))
+  if (/```(?:json|javascript|html|promql)?/.test(t))
+    return true
+  if (/^(?:sum|avg|min|max|count|rate|irate|increase|histogram_quantile|topk)\s*\(/i.test(t))
+    return true
+  if (/^\d{10,13}(?:\.\d+)?\s+[\d.eE+-]+$/.test(t))
+    return true
+  if (/^(?:\d{1,3}\.){3}\d{1,3}\s+\d/.test(t))
     return true
   return false
+}
+
+function looksLikePromqlOnly(text) {
+  const t = String(text || '').trim()
+  if (!t || t.length > 600)
+    return false
+  if (/[\u4e00-\u9fff]/.test(t) && t.length > 36 && SENTENCE_RE.test(t))
+    return false
+  return /^(?:sum|avg|min|max|count|rate|irate|increase|histogram_quantile|topk)\s*\(/i.test(t)
+    || (/\{[a-zA-Z_][a-zA-Z0-9_]*\s*=/.test(t) && /\[\d+[smhd]\]/.test(t) && !/[\u4e00-\u9fff]/.test(t))
+}
+
+function seriesLineRatio(text) {
+  const lines = String(text || '').split(/\n/).map(l => l.trim()).filter(Boolean)
+  if (lines.length < 4)
+    return 0
+  const series = lines.filter(line => /^\d{10,13}(?:\.\d+)?\s+[\d.eE+-]+$/.test(line) || /^(?:\d{1,3}\.){3}\d{1,3}\b/.test(line))
+  return series.length / lines.length
 }
 
 function leadingHumanText(text) {

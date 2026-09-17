@@ -91,7 +91,8 @@
 针对目标浏览器 Agent，仓库提供「回答是否人能看懂」的评测方案与报告工具：
 
 - 方案：[浏览器 Agent 回答可理解度评测方案](./docs/browser-agent-intelligibility-eval.md)
-- 运行：`pnpm eval:intelligibility`（夹具样例报告见 `eval/intelligibility/sample-report/`）
+- 通用运行：`pnpm eval:intelligibility`
+- 监控专家专项：`pnpm eval:monitoring-expert`（[套件说明](./eval/intelligibility/suites/opsclaw-monitoring-expert/README.md)）
 
 ## 前置要求
 

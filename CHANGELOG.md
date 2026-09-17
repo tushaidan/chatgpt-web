@@ -2,6 +2,7 @@
 
 ### Other
 - 新增浏览器 Agent 回答可理解度评测方案与报告工具（`docs/browser-agent-intelligibility-eval.md`，`eval/intelligibility/`）
+- 新增 OpsClaw「监控专家」专项评测套件（内网问答入口 + 值班题库）
 
 ## v2.10.9
 

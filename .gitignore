@@ -33,3 +33,6 @@ coverage
 
 # Intelligibility eval generated reports
 eval/intelligibility/out/
+eval/intelligibility/suites/**/out/
+eval/intelligibility/suites/**/transcripts/*.json
+eval/intelligibility/suites/**/transcripts/*.txt

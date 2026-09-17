@@ -173,3 +173,23 @@ Judge **只看** 用户问题和终局回答，**不要**把整段 a11y 树喂�
 | 合计多少？ | 「¥128」+ 整页 a11y 树 | 部分能看懂 / MIX |
 
 对应夹具在 `eval/intelligibility/fixtures/`。
+
+## 14. 专项：OpsClaw 监控专家
+
+问答入口：
+
+https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14
+
+评测对象是页面里的 **监控专家**，不是通用闲聊。值班人员不打开 Prometheus 也要能看懂结论。
+
+额外失败类型：`PROMQL`、`ALERTJSON`、`SERIES`。
+
+运行：
+
+```bash
+pnpm eval:monitoring-expert
+```
+
+入口若在内网不可达，报告会标明探测失败，并先用合成对照校准评分器。把实网回答放入 `eval/intelligibility/suites/opsclaw-monitoring-expert/transcripts/` 后重跑，即为实评。
+
+题库与采集说明见 `eval/intelligibility/suites/opsclaw-monitoring-expert/`。

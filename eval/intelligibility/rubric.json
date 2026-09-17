@@ -19,7 +19,7 @@
       "definition": "乱码、空回答、纯机器日志、纯截图无说明、只说下一步操作而没有结果，或结论完全淹没在 dump 中。"
     }
   },
-  "hard_fail_codes": ["EMPTY", "ENC", "TRACE", "DOM", "SCREEN", "PLAN"],
+  "hard_fail_codes": ["EMPTY", "ENC", "TRACE", "DOM", "SCREEN", "PLAN", "PROMQL", "ALERTJSON", "SERIES"],
   "dimensions": [
     {
       "id": "surface",
@@ -80,7 +80,10 @@
     "PLAN": "只描述下一步操作，无任务结果",
     "MIX": "结论被日志淹没",
     "LANG": "用户无法阅读的语言或界面字符串堆砌",
-    "WALL": "超长无结构文本"
+    "WALL": "超长无结构文本",
+    "PROMQL": "原始 PromQL/查询语句当作回答",
+    "ALERTJSON": "告警平台原始 JSON 当作回答",
+    "SERIES": "时序点/主机列表 dump，没有结论"
   },
   "gate": {
     "release_min_readable_rate": 0.85,

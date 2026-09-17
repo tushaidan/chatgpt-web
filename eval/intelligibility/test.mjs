@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { loadTranscripts } from './lib/normalize.mjs'
+import { loadTranscripts, fromDialogueText } from './lib/normalize.mjs'
 import { scoreTranscript } from './lib/score.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -58,7 +58,39 @@ async function main() {
   const dump = results.find(item => item.run_id === 'fx-a11y-dump-unreadable')
   assert.ok(dump.failures.some(item => item.code === 'DOM' || item.code === 'TRACE'))
 
-  console.log(`intelligibility tests passed (${results.length} transcripts)`)
+  const suiteDir = path.join(here, 'suites/opsclaw-monitoring-expert/fixtures')
+  const suiteFiles = (await readdir(suiteDir)).filter(name => name.endsWith('.json')).sort()
+  const suiteTranscripts = []
+  for (const name of suiteFiles) {
+    const raw = JSON.parse(await readFile(path.join(suiteDir, name), 'utf8'))
+    suiteTranscripts.push(...loadTranscripts(raw, name))
+  }
+  const suiteResults = suiteTranscripts.map(item => scoreTranscript(item))
+  const suiteMismatches = []
+  for (const item of suiteResults) {
+    const expected = item.expected?.verdict
+    assert.ok(expected, `监控专家夹具缺少期望判定：${item.run_id}`)
+    if (item.verdict !== expected) {
+      suiteMismatches.push({
+        run_id: item.run_id,
+        expected,
+        actual: item.verdict,
+        score: item.score,
+        failures: item.failures.map(f => f.code),
+        summary: item.summary,
+      })
+    }
+  }
+  assert.deepEqual(suiteMismatches, [], `监控专家夹具判定不一致：\n${JSON.stringify(suiteMismatches, null, 2)}`)
+
+  const pasted = fromDialogueText(`## me-alert-triage
+用户：现在最紧急的告警是哪一条？
+监控专家：结论：先处理 P1 checkout-5xx，影响下单。`, 'paste')
+  assert.equal(pasted[0].user_query.includes('最紧急'), true)
+  assert.equal(pasted[0].final_answer.includes('checkout-5xx'), true)
+  assert.equal(scoreTranscript(pasted[0]).verdict, 'readable')
+
+  console.log(`intelligibility tests passed (${results.length} general, ${suiteResults.length} monitoring-expert)`)
 }
 
 main().catch((error) => {

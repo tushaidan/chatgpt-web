@@ -11,6 +11,9 @@ export function loadTranscripts(raw, sourceName = 'input') {
     return raw.flatMap((item, i) => loadTranscripts(item, `${sourceName}[${i}]`))
   }
 
+  if (typeof raw === 'string')
+    return fromDialogueText(raw, sourceName)
+
   if (typeof raw !== 'object')
     throw new Error(`${sourceName} 不是对象或数组`)
 
@@ -22,6 +25,9 @@ export function loadTranscripts(raw, sourceName = 'input') {
 
   if (isChatGPTWebState(raw))
     return fromChatGPTWeb(raw, sourceName)
+
+  if (isOpsClawPayload(raw))
+    return fromOpsClaw(raw, sourceName)
 
   return [normalizeTranscript(raw, sourceName)]
 }
@@ -82,6 +88,134 @@ export function normalizeTranscript(raw, sourceName = 'transcript') {
     attachments: collectAttachments(raw, messages),
     _expected: raw._expected ?? null,
     _source: sourceName,
+  }
+}
+
+export function isOpsClawPayload(obj) {
+  if (!obj || typeof obj !== 'object')
+    return false
+  const hasAgent = Boolean(obj.agentId || obj.agent_id || obj.agentName || obj.agent_name)
+  const hasThread = Array.isArray(obj.turns) || Array.isArray(obj.records)
+    || Array.isArray(obj.conversation?.messages)
+    || (Array.isArray(obj.messages) && obj.messages.some(m => m.role || m.type || m.sender))
+  return hasAgent && hasThread
+}
+
+export function fromOpsClaw(raw, sourceName = 'opsclaw') {
+  const agent = String(raw.agentName || raw.agent_name || raw.agent || '监控专家')
+  const target = {
+    browser: 'OpsClaw Web Console',
+    url: raw.entry_url || raw.url || '',
+    viewport: '',
+  }
+  const meta = {
+    agent,
+    scenario: raw.scenario || 'monitoring',
+    locale: 'zh-CN',
+    target,
+    expected: raw._expected ?? null,
+  }
+
+  if (Array.isArray(raw.turns) && raw.turns.some(t => t.query || t.question || t.prompt)) {
+    return raw.turns.map((turn, i) => normalizeTranscript({
+      run_id: String(turn.id || turn.case_id || `${sourceName}-turn-${i + 1}`),
+      agent,
+      scenario: turn.scenario || meta.scenario,
+      locale: 'zh-CN',
+      target,
+      user_query: turn.query || turn.question || turn.prompt || '',
+      final_answer: turn.answer || turn.reply || turn.final_answer || '',
+      messages: [
+        { role: 'user', channel: 'user_visible', content: turn.query || turn.question || '' },
+        { role: 'assistant', channel: 'user_visible', content: turn.answer || turn.reply || '' },
+      ],
+      _expected: turn._expected,
+    }, `${sourceName}#${i}`))
+  }
+
+  const messages = raw.records || raw.messages || raw.conversation?.messages || []
+  return fromMessageThread(messages, meta, sourceName)
+}
+
+export function fromDialogueText(text, sourceName = 'paste') {
+  const source = String(text || '').trim()
+  if (!source)
+    return []
+
+  if (/^##\s+\S/m.test(source)) {
+    return source.split(/^##\s+/m).map(s => s.trim()).filter(Boolean).map((block, i) => {
+      const nl = block.indexOf('\n')
+      const run_id = (nl === -1 ? block : block.slice(0, nl)).trim() || `${sourceName}-${i + 1}`
+      const body = nl === -1 ? '' : block.slice(nl + 1)
+      const { user, assistant } = splitRoles(body)
+      return normalizeTranscript({
+        run_id,
+        agent: '监控专家',
+        scenario: 'monitoring',
+        locale: 'zh-CN',
+        target: { browser: 'OpsClaw Web Console' },
+        user_query: user,
+        final_answer: assistant,
+      }, run_id)
+    })
+  }
+
+  const { user, assistant } = splitRoles(source)
+  return [normalizeTranscript({
+    run_id: sourceName,
+    agent: '监控专家',
+    scenario: 'monitoring',
+    locale: 'zh-CN',
+    target: { browser: 'OpsClaw Web Console' },
+    user_query: user,
+    final_answer: assistant,
+  }, sourceName)]
+}
+
+function fromMessageThread(messages, meta, sourceName) {
+  const transcripts = []
+  let pendingUser = ''
+  messages.forEach((item, index) => {
+    const role = mapOpsRole(item)
+    const content = String(item.content ?? item.text ?? item.message ?? item.answer ?? '')
+    if (role === 'tool' || item.channel === 'trace')
+      return
+    if (role === 'user') {
+      pendingUser = content
+      return
+    }
+    if (role === 'assistant' && (pendingUser || content)) {
+      transcripts.push(normalizeTranscript({
+        run_id: String(item.id || `${sourceName}-turn-${transcripts.length + 1}`),
+        agent: meta.agent,
+        scenario: item.scenario || meta.scenario,
+        locale: meta.locale,
+        target: meta.target,
+        user_query: pendingUser,
+        final_answer: content,
+        _expected: item._expected || meta.expected,
+      }, `${sourceName}#${index}`))
+      pendingUser = ''
+    }
+  })
+  return transcripts
+}
+
+function mapOpsRole(item) {
+  const raw = String(item.role || item.type || item.sender || item.from || '').toLowerCase()
+  if (['user', 'human', 'query', 'question'].includes(raw) || raw.includes('用户'))
+    return 'user'
+  if (['tool', 'function', 'trace'].includes(raw))
+    return 'tool'
+  return 'assistant'
+}
+
+function splitRoles(body) {
+  const userMatch = String(body).match(/(?:用户|User|Human)[:：]\s*([\s\S]*?)(?=(?:监控专家|助手|Agent|Assistant)[:：]|$)/i)
+  const asstMatch = String(body).match(/(?:监控专家|助手|Agent|Assistant)[:：]\s*([\s\S]*)$/i)
+  return {
+    user: userMatch?.[1]?.trim() || '',
+    assistant: asstMatch?.[1]?.trim() || '',
   }
 }
 

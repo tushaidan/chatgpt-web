@@ -10,6 +10,7 @@ export function renderMarkdownReport(payload) {
     '',
     `> 核心问题：${summary.question}`,
     '',
+    ...renderMarkdownMeta(payload),
     `- 生成时间：${generated_at}`,
     `- 样本数：${summary.total}`,
     `- 平均分：${summary.avg_score}`,
@@ -19,9 +20,17 @@ export function renderMarkdownReport(payload) {
     `- 发布门槛：可读率 ≥ ${pct(summary.gate.release_min_readable_rate)} 且不可读率 ≤ ${pct(summary.gate.release_max_unreadable_rate)} → ${summary.pass_gate ? '通过' : '未通过'}`,
     summary.needs_human_review ? `- 需人工复核（启发式与 Judge 不一致）：${summary.needs_human_review}` : '',
     '',
-    '## 失败类型分布',
-    '',
   ]
+
+  if (payload.pending_cases?.length) {
+    lines.push('## 应贴进问答入口的值班题', '')
+    lines.push('| ID | 场景 | 问题 |', '| --- | --- | --- |')
+    for (const item of payload.pending_cases)
+      lines.push(`| ${item.id} | ${item.scenario} | ${item.query} |`)
+    lines.push('')
+  }
+
+  lines.push('## 失败类型分布', '')
 
   const codes = Object.keys(summary.failure_counts)
   if (!codes.length) {
@@ -131,6 +140,8 @@ export function renderHtmlReport(payload) {
     .gate { margin-top:16px; padding:10px 14px; border-radius:10px; display:inline-block; }
     .gate.pass { background:#123226; color:var(--ok); }
     .gate.fail { background:#3a1518; color:var(--bad); }
+    .banner { margin-top:16px; padding:12px 14px; border-radius:10px; background:#171e26; border:1px solid var(--line); color:var(--muted); }
+    .banner.bad { background:#3a1518; color:#ffd6d6; }
     table { width:100%; border-collapse: collapse; background:var(--card); border-radius:12px; overflow:hidden; }
     th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; }
     a { color:#8cb4ff; }
@@ -162,6 +173,7 @@ export function renderHtmlReport(payload) {
   <header class="hero">
     <h1>${esc(title)}</h1>
     <p>${esc(summary.question)}<br/>生成时间 ${esc(generated_at)} · 样本 ${summary.total} · 平均分 ${summary.avg_score}</p>
+    ${renderHtmlMeta(payload)}
     <div class="kpis">
       <div class="kpi readable"><span>人能看懂</span><b>${pct(summary.readable_rate)}</b><small>${summary.counts.readable} 条</small></div>
       <div class="kpi partial"><span>部分能看懂</span><b>${pct(summary.partial_rate)}</b><small>${summary.counts.partial} 条</small></div>
@@ -171,6 +183,11 @@ export function renderHtmlReport(payload) {
     <div class="gate ${summary.pass_gate ? 'pass' : 'fail'}">发布门槛：${summary.pass_gate ? '通过' : '未通过'}（可读率 ≥ ${pct(summary.gate.release_min_readable_rate)} 且不可读率 ≤ ${pct(summary.gate.release_max_unreadable_rate)}）</div>
   </header>
   <main>
+    ${payload.pending_cases?.length ? `<h2>应贴进问答入口的值班题</h2>
+    <table>
+      <thead><tr><th>ID</th><th>场景</th><th>问题</th></tr></thead>
+      <tbody>${payload.pending_cases.map(item => `<tr><td>${esc(item.id)}</td><td>${esc(item.scenario)}</td><td>${esc(item.query)}</td></tr>`).join('')}</tbody>
+    </table>` : ''}
     <h2>总览</h2>
     <table>
       <thead><tr><th>人能看懂吗</th><th>分数</th><th>Run</th><th>场景</th><th>失败</th></tr></thead>
@@ -232,4 +249,41 @@ function esc(value) {
 
 function pct(value) {
   return `${Math.round(Number(value || 0) * 1000) / 10}%`
+}
+
+function renderMarkdownMeta(payload) {
+  const lines = []
+  if (payload.target) {
+    lines.push(`- 对象：${payload.target.name_zh || payload.target.id}`)
+    if (payload.target.entry_url)
+      lines.push(`- 问答入口：${payload.target.entry_url}`)
+    if (payload.target.agent_id)
+      lines.push(`- agentId：\`${payload.target.agent_id}\``)
+  }
+  if (payload.mode === 'synthetic')
+    lines.push('- 模式：**合成对照**（未采集到实网对话，不能当作线上成绩）')
+  if (payload.mode === 'captured')
+    lines.push('- 模式：实网采集')
+  if (payload.access) {
+    lines.push(payload.access.reachable
+      ? `- 入口探测：可达 HTTP ${payload.access.http_status}`
+      : `- 入口探测：**不可达** ${payload.access.error || ''}（${payload.access.hostname || ''}）`)
+  }
+  return lines
+}
+
+function renderHtmlMeta(payload) {
+  const bits = []
+  if (payload.target?.entry_url)
+    bits.push(`对象 ${esc(payload.target.name_zh || '')} · <a href="${esc(payload.target.entry_url)}">${esc(payload.target.entry_url)}</a>`)
+  if (payload.mode === 'synthetic')
+    bits.push('当前是合成对照，不是实网成绩。把问答入口的回答放到 transcripts/ 后重跑。')
+  if (payload.mode === 'captured')
+    bits.push('当前按实网采集评分。')
+  if (payload.access && !payload.access.reachable)
+    bits.push(`入口探测失败：${esc(payload.access.error || 'unreachable')}（${esc(payload.access.hostname || '')}）`)
+  if (!bits.length)
+    return ''
+  const cls = payload.access && !payload.access.reachable ? 'banner bad' : 'banner'
+  return `<div class="${cls}">${bits.join('<br/>')}</div>`
 }

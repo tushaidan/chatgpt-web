@@ -1,0 +1,10 @@
+{
+  "run_id": "me-series-unreadable",
+  "agent": "监控专家",
+  "scenario": "metric",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？",
+  "final_answer": "1710000000 0.21\n1710000060 0.28\n1710000120 0.66\n1710000180 0.71\n1710000240 0.84\n1710000300 0.91\n10.0.1.11 91\n10.0.1.12 37\n10.0.1.13 41\n10.0.1.14 39",
+  "_expected": { "verdict": "unreadable" }
+}
