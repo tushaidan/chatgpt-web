@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-product-compare-readable",
+  "agent": "demo-browser-agent",
+  "scenario": "extract",
+  "locale": "en-US",
+  "target": { "browser": "chromium", "url": "https://store.example.com" },
+  "user_query": "Compare the iPhone 15 and Pixel 8 camera in one short table.",
+  "final_answer": "Here is a short camera comparison from the product pages:\n\n| Item | iPhone 15 | Pixel 8 |\n| --- | --- | --- |\n| Main sensor | 48 MP | 50 MP |\n| Video | 4K60 | 4K60 |\n| Night mode | Yes | Yes, typically stronger |\n\nBottom line: Pixel 8 is better in night shots; iPhone 15 is more consistent in video.",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "Here is a short camera comparison from the product pages:\n\n| Item | iPhone 15 | Pixel 8 |\n| --- | --- | --- |\n| Main sensor | 48 MP | 50 MP |\n| Video | 4K60 | 4K60 |\n| Night mode | Yes | Yes, typically stronger |\n\nBottom line: Pixel 8 is better in night shots; iPhone 15 is more consistent in video." }
+  ],
+  "_expected": { "verdict": "readable" }
+}

@@ -1,0 +1,10 @@
+{
+  "run_id": "me-cpu-readable",
+  "agent": "监控专家",
+  "scenario": "metric",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。",
+  "final_answer": "结论：先不要扩容。这是单机批处理打满了 CPU，延迟没有一起涨。建议先看 job=batch 的进程，观察 15 分钟；若延迟也过 200ms 再扩。",
+  "_expected": { "verdict": "readable" }
+}

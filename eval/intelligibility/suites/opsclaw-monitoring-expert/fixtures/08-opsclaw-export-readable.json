@@ -1,0 +1,10 @@
+{
+  "agentId": "a3fda524-7f2c-4c52-94ca-7b4198941a14",
+  "agentName": "监控专家",
+  "entry_url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+  "_expected": { "verdict": "readable" },
+  "messages": [
+    { "role": "user", "content": "当前有没有正在响的 P1？没有就直接说没有。" },
+    { "role": "assistant", "content": "当前没有正在响的 P1。有 2 条 P3（磁盘预警、证书 30 天到期），都不需要叫人。" }
+  ]
+}

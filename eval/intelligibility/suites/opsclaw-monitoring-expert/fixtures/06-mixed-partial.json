@@ -1,0 +1,10 @@
+{
+  "run_id": "me-mixed-partial",
+  "agent": "监控专家",
+  "scenario": "alert",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？",
+  "final_answer": "磁盘告警已恢复，大约 22:47。\n\n```json\n{\"status\":\"resolved\",\"alerts\":[{\"labels\":{\"alertname\":\"disk_usage_high\",\"device\":\"/dev/vda1\"},\"annotations\":{\"description\":\"disk 92%\"},\"fingerprint\":\"ab12\",\"generatorURL\":\"http://prometheus.internal/graph?g0.expr=node_filesystem_avail_bytes\"}],\"tool_call\":\"prometheus_query_range\",\"selector\":\"html > body > div#grafana\"}\n```\nRootWebArea \"Alertmanager\"\n  [button] Silence\n  [heading] disk_usage_high\n  html > body > div > table > tr",
+  "_expected": { "verdict": "partial" }
+}

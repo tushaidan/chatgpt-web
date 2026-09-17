@@ -1,0 +1,626 @@
+{
+  "title": "监控专家回答可理解度评测报告",
+  "generated_at": "2026-09-17T05:26:51.841Z",
+  "input": "/workspace/eval/intelligibility/suites/opsclaw-monitoring-expert/fixtures",
+  "summary": {
+    "total": 8,
+    "counts": {
+      "readable": 3,
+      "partial": 1,
+      "unreadable": 4
+    },
+    "readable_rate": 0.375,
+    "partial_rate": 0.125,
+    "unreadable_rate": 0.5,
+    "avg_score": 55.9,
+    "failure_counts": {
+      "ALERTJSON": 1,
+      "LANG": 3,
+      "PROMQL": 1,
+      "SERIES": 1,
+      "DOM": 1,
+      "TRACE": 1,
+      "MIX": 1,
+      "PLAN": 1
+    },
+    "needs_human_review": 0,
+    "pass_gate": false,
+    "gate": {
+      "release_min_readable_rate": 0.85,
+      "release_max_unreadable_rate": 0.05,
+      "review_disagreement": true
+    },
+    "question": "值班人员不打开 Prometheus、不看工具 JSON，能否看懂监控专家的终局回答？"
+  },
+  "results": [
+    {
+      "run_id": "me-alert-triage",
+      "agent": "监控专家",
+      "scenario": "alert",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+      "user_visible_text": "结论：先处理 P1 `checkout-5xx`，不要先看 CPU。\n\n- 对象：checkout-api / 生产\n- 现象：近 12 分钟 5xx 从 0.3% 升到 7.8%\n- 影响：下单失败，收银台已有用户投诉迹象\n- 建议：先看 gw-3 实例和下游 pay-svc，CPU 告警可以后置",
+      "trace_excerpt": "",
+      "score": 93,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 1,
+        "extractable_answer": 0.75,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.6
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 93,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "readable"
+      }
+    },
+    {
+      "run_id": "me-alert-json-unreadable",
+      "agent": "监控专家",
+      "scenario": "alert",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+      "user_visible_text": "{\"status\":\"success\",\"alerts\":[{\"labels\":{\"alertname\":\"checkout-5xx\",\"severity\":\"critical\",\"instance\":\"gw-3\"},\"annotations\":{\"summary\":\"5xx high\"},\"fingerprint\":\"9af3\",\"generatorURL\":\"http://prometheus/graph\"}]}",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "终局回答是告警平台原始 JSON。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0,
+        "trace_leak": 0,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "ALERTJSON",
+          "label": "告警平台原始 JSON 当作回答",
+          "note": "终局回答是告警平台原始 JSON。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 120,
+          "kind": "bad",
+          "note": "终局回答是告警平台原始 JSON。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "终局回答是告警平台原始 JSON。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "终局回答是告警平台原始 JSON。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "me-cpu-readable",
+      "agent": "监控专家",
+      "scenario": "metric",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。",
+      "user_visible_text": "结论：先不要扩容。这是单机批处理打满了 CPU，延迟没有一起涨。建议先看 job=batch 的进程，观察 15 分钟；若延迟也过 200ms 再扩。",
+      "trace_excerpt": "",
+      "score": 97,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 1,
+        "extractable_answer": 0.8928571428571428,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.7714285714285714
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 97,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "readable"
+      }
+    },
+    {
+      "run_id": "me-promql-unreadable",
+      "agent": "监控专家",
+      "scenario": "query",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？",
+      "user_visible_text": "sum(rate(http_requests_total{job=\"gateway\",code=~\"5..\"}[15m])) / sum(rate(http_requests_total{job=\"gateway\"}[15m]))",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "终局回答几乎只是 PromQL/查询语句。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0.15,
+        "natural_language": 0.4781111111111111,
+        "extractable_answer": 0.09285714285714286,
+        "trace_leak": 0.09999999999999998,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.5214285714285714
+      },
+      "failures": [
+        {
+          "code": "PROMQL",
+          "label": "原始 PromQL/查询语句当作回答",
+          "note": "终局回答几乎只是 PromQL/查询语句。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 115,
+          "kind": "bad",
+          "note": "终局回答几乎只是 PromQL/查询语句。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "终局回答几乎只是 PromQL/查询语句。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "终局回答几乎只是 PromQL/查询语句。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "me-series-unreadable",
+      "agent": "监控专家",
+      "scenario": "metric",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？",
+      "user_visible_text": "1710000000 0.21\n1710000060 0.28\n1710000120 0.66\n1710000180 0.71\n1710000240 0.84\n1710000300 0.91\n10.0.1.11 91\n10.0.1.12 37\n10.0.1.13 41\n10.0.1.14 39",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "终局回答是时序点或主机列表 dump，没有给出口语结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0.15,
+        "natural_language": 0.102,
+        "extractable_answer": 0.1166666666666667,
+        "trace_leak": 0.09999999999999998,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.5499999999999999
+      },
+      "failures": [
+        {
+          "code": "SERIES",
+          "label": "时序点/主机列表 dump，没有结论",
+          "note": "终局回答是时序点或主机列表 dump，没有给出口语结论。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 120,
+          "kind": "bad",
+          "note": "终局回答是时序点或主机列表 dump，没有给出口语结论。"
+        }
+      ],
+      "evidence": [
+        "终局回答是时序点或主机列表 dump，没有给出口语结论。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "终局回答是时序点或主机列表 dump，没有给出口语结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "me-mixed-partial",
+      "agent": "监控专家",
+      "scenario": "alert",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？",
+      "user_visible_text": "磁盘告警已恢复，大约 22:47。\n\n```json\n{\"status\":\"resolved\",\"alerts\":[{\"labels\":{\"alertname\":\"disk_usage_high\",\"device\":\"/dev/vda1\"},\"annotations\":{\"description\":\"disk 92%\"},\"fingerprint\":\"ab12\",\"generatorURL\":\"http://prometheus.internal/graph?g0.expr=node_filesystem_avail_bytes\"}],\"tool_call\":\"prometheus_query_range\",\"selector\":\"html > body > div#grafana\"}\n```\nRootWebArea \"Alertmanager\"\n  [button] Silence\n  [heading] disk_usage_high\n  html > body > div > table > tr",
+      "trace_excerpt": "",
+      "score": 45,
+      "verdict": "partial",
+      "verdict_zh": "部分能看懂",
+      "human_can_understand": false,
+      "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0.21666666666666673,
+        "trace_leak": 0,
+        "visual_explain": 1,
+        "cognitive_load": 0.7462882096069869,
+        "task_relevance": 0.7999999999999999
+      },
+      "failures": [
+        {
+          "code": "DOM",
+          "label": "无障碍树或 HTML/选择器 dump",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "code": "TRACE",
+          "label": "工具调用日志当作回答",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "code": "MIX",
+          "label": "结论被日志淹没",
+          "note": "有自然语言结论，但被轨迹/JSON/DOM 淹没。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 381,
+          "end": 389,
+          "kind": "bad",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "start": 271,
+          "end": 283,
+          "kind": "bad",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "start": 381,
+          "end": 389,
+          "kind": "warn",
+          "note": "有自然语言结论，但被轨迹/JSON/DOM 淹没。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+        "回答主体是工具调用/浏览器操作日志。",
+        "有自然语言结论，但被轨迹/JSON/DOM 淹没。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 45,
+        "verdict": "partial",
+        "verdict_zh": "部分能看懂",
+        "human_can_understand": false,
+        "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "partial"
+      }
+    },
+    {
+      "run_id": "me-plan-unreadable",
+      "agent": "监控专家",
+      "scenario": "workflow",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。",
+      "user_visible_text": "好的，我将打开 Prometheus 并点击 5xx 面板。",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "只宣布下一步操作，没有给出任务结果。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0.5499999999999999,
+        "natural_language": 1,
+        "extractable_answer": 0.6928571428571428,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.2214285714285713
+      },
+      "failures": [
+        {
+          "code": "PLAN",
+          "label": "只描述下一步操作，无任务结果",
+          "note": "只宣布下一步操作，没有给出任务结果。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 30,
+          "kind": "bad",
+          "note": "只宣布下一步操作，没有给出任务结果。"
+        }
+      ],
+      "evidence": [
+        "只宣布下一步操作，没有给出任务结果。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "只宣布下一步操作，没有给出任务结果。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "08-opsclaw-export-readable.json-turn-1",
+      "agent": "监控专家",
+      "scenario": "monitoring",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "OpsClaw Web Console",
+        "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+        "viewport": ""
+      },
+      "user_query": "当前有没有正在响的 P1？没有就直接说没有。",
+      "user_visible_text": "当前没有正在响的 P1。有 2 条 P3（磁盘预警、证书 30 天到期），都不需要叫人。",
+      "trace_excerpt": "",
+      "score": 100,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 1,
+        "extractable_answer": 1,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 1
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 100,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "readable"
+      }
+    }
+  ],
+  "target": {
+    "id": "opsclaw-monitoring-expert",
+    "name_zh": "监控专家",
+    "product": "OpsOne / OpsClaw",
+    "entry_url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+    "agent_id": "a3fda524-7f2c-4c52-94ca-7b4198941a14",
+    "locale": "zh-CN",
+    "audience": "值班人员 / SRE",
+    "browser": "OpsClaw Web Console",
+    "eval_question": "值班人员不打开 Prometheus、不看工具 JSON，能否看懂监控专家的终局回答？"
+  },
+  "access": {
+    "reachable": false,
+    "error": "ENOTFOUND",
+    "hostname": "opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com",
+    "entry_url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+    "probed_at": "2026-09-17T05:26:51.842Z",
+    "cookie_present": false
+  },
+  "mode": "synthetic",
+  "pending_cases": [
+    {
+      "id": "me-alert-triage",
+      "scenario": "alert",
+      "query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+      "pass": "开头给出告警名/级别/对象/影响面，不要只贴告警 JSON。"
+    },
+    {
+      "id": "me-cpu-hot",
+      "scenario": "metric",
+      "query": "生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。",
+      "pass": "先说要不要扩容和依据（时间窗、是否单机、是否有对应延迟），不要只给瞬时点。"
+    },
+    {
+      "id": "me-5xx",
+      "scenario": "metric",
+      "query": "最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？",
+      "pass": "有/没有 + 数字 + 时间窗；禁止只回 PromQL。"
+    },
+    {
+      "id": "me-promql-explain",
+      "scenario": "query",
+      "query": "用白话解释这句在看什么：sum(rate(http_requests_total{job=\"api\"}[5m])) by (code)",
+      "pass": "用人话讲「按状态码看近 5 分钟 QPS」，可以附带原查询，但不能只有查询。"
+    },
+    {
+      "id": "me-disk-recover",
+      "scenario": "alert",
+      "query": "昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？",
+      "pass": "恢复/未恢复 + 时间；不要丢整段 Alertmanager 历史。"
+    },
+    {
+      "id": "me-log-meaning",
+      "scenario": "log",
+      "query": "这段报错对值班意味着什么？要不要叫人起来？Connection reset by peer on checkout",
+      "pass": "严重级别 + 是否叫人 + 一句话原因；不要把整段堆栈当答案。"
+    },
+    {
+      "id": "me-capacity",
+      "scenario": "capacity",
+      "query": "按过去 7 天内存水位，明天大促内存够不够？差多少？",
+      "pass": "够/不够 + 数字；禁止只贴主机列表。"
+    },
+    {
+      "id": "me-dashboard",
+      "scenario": "dashboard",
+      "query": "当前监控大盘最值得看的结论是什么？不要描述你点了哪个面板。",
+      "pass": "一条业务结论；截图必须有文字说明。"
+    },
+    {
+      "id": "me-silence",
+      "scenario": "alert",
+      "query": "cpu_usage_high 这条告警现在能不能静默？为什么？",
+      "pass": "能/不能 + 理由（是否仍在发生、是否维护窗口）。"
+    },
+    {
+      "id": "me-compare-hosts",
+      "scenario": "metric",
+      "query": "api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？",
+      "pass": "点名更危险的一台和差值；不要两列原始时序。"
+    },
+    {
+      "id": "me-empty-state",
+      "scenario": "alert",
+      "query": "当前有没有正在响的 P1？没有就直接说没有。",
+      "pass": "明确有或没有。禁止空白、正在查询、工具日志。"
+    },
+    {
+      "id": "me-next-click",
+      "scenario": "workflow",
+      "query": "如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。",
+      "pass": "给用户指令，而不是 Agent 自己的操作计划。"
+    }
+  ]
+}

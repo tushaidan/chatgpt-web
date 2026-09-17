@@ -1,0 +1,79 @@
+{
+  "suite": "opsclaw-monitoring-expert",
+  "agent": "监控专家",
+  "note": "把这些问题逐条贴进 OpsClaw 问答入口。评测看终局文字是否人能看懂，不看工具是否查到了数。",
+  "cases": [
+    {
+      "id": "me-alert-triage",
+      "scenario": "alert",
+      "query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+      "pass": "开头给出告警名/级别/对象/影响面，不要只贴告警 JSON。"
+    },
+    {
+      "id": "me-cpu-hot",
+      "scenario": "metric",
+      "query": "生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。",
+      "pass": "先说要不要扩容和依据（时间窗、是否单机、是否有对应延迟），不要只给瞬时点。"
+    },
+    {
+      "id": "me-5xx",
+      "scenario": "metric",
+      "query": "最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？",
+      "pass": "有/没有 + 数字 + 时间窗；禁止只回 PromQL。"
+    },
+    {
+      "id": "me-promql-explain",
+      "scenario": "query",
+      "query": "用白话解释这句在看什么：sum(rate(http_requests_total{job=\"api\"}[5m])) by (code)",
+      "pass": "用人话讲「按状态码看近 5 分钟 QPS」，可以附带原查询，但不能只有查询。"
+    },
+    {
+      "id": "me-disk-recover",
+      "scenario": "alert",
+      "query": "昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？",
+      "pass": "恢复/未恢复 + 时间；不要丢整段 Alertmanager 历史。"
+    },
+    {
+      "id": "me-log-meaning",
+      "scenario": "log",
+      "query": "这段报错对值班意味着什么？要不要叫人起来？Connection reset by peer on checkout",
+      "pass": "严重级别 + 是否叫人 + 一句话原因；不要把整段堆栈当答案。"
+    },
+    {
+      "id": "me-capacity",
+      "scenario": "capacity",
+      "query": "按过去 7 天内存水位，明天大促内存够不够？差多少？",
+      "pass": "够/不够 + 数字；禁止只贴主机列表。"
+    },
+    {
+      "id": "me-dashboard",
+      "scenario": "dashboard",
+      "query": "当前监控大盘最值得看的结论是什么？不要描述你点了哪个面板。",
+      "pass": "一条业务结论；截图必须有文字说明。"
+    },
+    {
+      "id": "me-silence",
+      "scenario": "alert",
+      "query": "cpu_usage_high 这条告警现在能不能静默？为什么？",
+      "pass": "能/不能 + 理由（是否仍在发生、是否维护窗口）。"
+    },
+    {
+      "id": "me-compare-hosts",
+      "scenario": "metric",
+      "query": "api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？",
+      "pass": "点名更危险的一台和差值；不要两列原始时序。"
+    },
+    {
+      "id": "me-empty-state",
+      "scenario": "alert",
+      "query": "当前有没有正在响的 P1？没有就直接说没有。",
+      "pass": "明确有或没有。禁止空白、正在查询、工具日志。"
+    },
+    {
+      "id": "me-next-click",
+      "scenario": "workflow",
+      "query": "如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。",
+      "pass": "给用户指令，而不是 Agent 自己的操作计划。"
+    }
+  ]
+}

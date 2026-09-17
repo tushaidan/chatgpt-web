@@ -1,0 +1,21 @@
+{
+  "run_id": "fx-screenshot-only-unreadable",
+  "agent": "demo-browser-agent",
+  "scenario": "extract",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium", "url": "https://news.example.com" },
+  "user_query": "这个页面的标题和第一段在说什么？",
+  "final_answer": "",
+  "attachments": [
+    { "type": "screenshot", "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA", "caption": "" }
+  ],
+  "messages": [
+    {
+      "role": "assistant",
+      "channel": "user_visible",
+      "content": "",
+      "attachments": [{ "type": "screenshot", "caption": "" }]
+    }
+  ],
+  "_expected": { "verdict": "unreadable" }
+}

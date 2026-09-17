@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>监控专家回答可理解度评测报告</title>
+  <style>
+    :root { --bg:#0f1419; --card:#171e26; --ink:#e8eef6; --muted:#9aa8b7; --ok:#3dd68c; --warn:#f5c14a; --bad:#ff6b6b; --line:#243040; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; background:var(--bg); color:var(--ink); line-height:1.55; }
+    header.hero, main { max-width: 1120px; margin:0 auto; padding: 32px 20px; }
+    header.hero h1 { margin:0 0 8px; font-size: 28px; }
+    header.hero p { color: var(--muted); margin: 0 0 18px; }
+    .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
+    .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    .kpi b { display:block; font-size:28px; }
+    .kpi.readable b { color: var(--ok); }
+    .kpi.partial b { color: var(--warn); }
+    .kpi.unreadable b { color: var(--bad); }
+    .gate { margin-top:16px; padding:10px 14px; border-radius:10px; display:inline-block; }
+    .gate.pass { background:#123226; color:var(--ok); }
+    .gate.fail { background:#3a1518; color:var(--bad); }
+    .banner { margin-top:16px; padding:12px 14px; border-radius:10px; background:#171e26; border:1px solid var(--line); color:var(--muted); }
+    .banner.bad { background:#3a1518; color:#ffd6d6; }
+    table { width:100%; border-collapse: collapse; background:var(--card); border-radius:12px; overflow:hidden; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; }
+    a { color:#8cb4ff; }
+    .badge { min-width:108px; text-align:center; padding:6px 10px; border-radius:999px; font-weight:700; }
+    .badge.readable { background:#123226; color:var(--ok); }
+    .badge.partial { background:#3a2e10; color:var(--warn); }
+    .badge.unreadable { background:#3a1518; color:var(--bad); }
+    .case { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin: 18px 0 28px; }
+    .case header { display:flex; gap:14px; align-items:center; }
+    .case h3 { margin:0; }
+    .meta, .ask { color:var(--muted); }
+    .ask { color:var(--ink); }
+    .grid { display:grid; grid-template-columns: 1.3fr .9fr; gap:16px; }
+    pre { white-space: pre-wrap; word-break: break-word; background:#0c1015; padding:12px; border-radius:10px; font-size:13px; }
+    pre.trace { max-height: 220px; overflow:auto; color:var(--muted); }
+    mark.bad { background:#5a1d22; color:#ffd6d6; padding:0 2px; }
+    mark.warn { background:#4a3b12; color:#ffe9b0; padding:0 2px; }
+    .tag { display:inline-block; font-size:12px; padding:3px 8px; border-radius:999px; margin: 0 6px 6px 0; }
+    .tag.ok { background:#123226; color:var(--ok); }
+    .tag.bad { background:#3a1518; color:var(--bad); }
+    .dim { display:grid; grid-template-columns: 88px 1fr 36px; gap:8px; align-items:center; font-size:12px; margin: 6px 0; color:var(--muted); }
+    .dim i { height:8px; background:#0c1015; border-radius:99px; display:block; }
+    .dim b { display:block; height:8px; background:#6ea8ff; border-radius:99px; }
+    .empty { color:var(--bad); }
+    @media (max-width: 860px) { .kpis, .grid { grid-template-columns: 1fr; } .case header { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>监控专家回答可理解度评测报告</h1>
+    <p>值班人员不打开 Prometheus、不看工具 JSON，能否看懂监控专家的终局回答？<br/>生成时间 2026-09-17T05:26:51.841Z · 样本 8 · 平均分 55.9</p>
+    <div class="banner bad">对象 监控专家 · <a href="https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14">https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14</a><br/>当前是合成对照，不是实网成绩。把问答入口的回答放到 transcripts/ 后重跑。<br/>入口探测失败：ENOTFOUND（opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com）</div>
+    <div class="kpis">
+      <div class="kpi readable"><span>人能看懂</span><b>37.5%</b><small>3 条</small></div>
+      <div class="kpi partial"><span>部分能看懂</span><b>12.5%</b><small>1 条</small></div>
+      <div class="kpi unreadable"><span>人看不懂</span><b>50%</b><small>4 条</small></div>
+      <div class="kpi"><span>平均分</span><b>55.9</b><small>门槛 85% 可读</small></div>
+    </div>
+    <div class="gate fail">发布门槛：未通过（可读率 ≥ 85% 且不可读率 ≤ 5%）</div>
+  </header>
+  <main>
+    <h2>应贴进问答入口的值班题</h2>
+    <table>
+      <thead><tr><th>ID</th><th>场景</th><th>问题</th></tr></thead>
+      <tbody><tr><td>me-alert-triage</td><td>alert</td><td>现在最紧急的告警是哪一条？影响什么业务？我先处理谁？</td></tr><tr><td>me-cpu-hot</td><td>metric</td><td>生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。</td></tr><tr><td>me-5xx</td><td>metric</td><td>最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？</td></tr><tr><td>me-promql-explain</td><td>query</td><td>用白话解释这句在看什么：sum(rate(http_requests_total{job=&quot;api&quot;}[5m])) by (code)</td></tr><tr><td>me-disk-recover</td><td>alert</td><td>昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？</td></tr><tr><td>me-log-meaning</td><td>log</td><td>这段报错对值班意味着什么？要不要叫人起来？Connection reset by peer on checkout</td></tr><tr><td>me-capacity</td><td>capacity</td><td>按过去 7 天内存水位，明天大促内存够不够？差多少？</td></tr><tr><td>me-dashboard</td><td>dashboard</td><td>当前监控大盘最值得看的结论是什么？不要描述你点了哪个面板。</td></tr><tr><td>me-silence</td><td>alert</td><td>cpu_usage_high 这条告警现在能不能静默？为什么？</td></tr><tr><td>me-compare-hosts</td><td>metric</td><td>api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？</td></tr><tr><td>me-empty-state</td><td>alert</td><td>当前有没有正在响的 P1？没有就直接说没有。</td></tr><tr><td>me-next-click</td><td>workflow</td><td>如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。</td></tr></tbody>
+    </table>
+    <h2>总览</h2>
+    <table>
+      <thead><tr><th>人能看懂吗</th><th>分数</th><th>Run</th><th>场景</th><th>失败</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>93</td>
+          <td><a href="#case-0">me-alert-triage</a></td>
+          <td>alert</td>
+          <td>-</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-1">me-alert-json-unreadable</a></td>
+          <td>alert</td>
+          <td>ALERTJSON, LANG</td>
+        </tr><tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>97</td>
+          <td><a href="#case-2">me-cpu-readable</a></td>
+          <td>metric</td>
+          <td>-</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-3">me-promql-unreadable</a></td>
+          <td>query</td>
+          <td>PROMQL, LANG</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-4">me-series-unreadable</a></td>
+          <td>metric</td>
+          <td>SERIES</td>
+        </tr><tr>
+          <td><span class="badge partial">部分能看懂</span></td>
+          <td>45</td>
+          <td><a href="#case-5">me-mixed-partial</a></td>
+          <td>alert</td>
+          <td>DOM, TRACE, MIX, LANG</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-6">me-plan-unreadable</a></td>
+          <td>workflow</td>
+          <td>PLAN</td>
+        </tr><tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>100</td>
+          <td><a href="#case-7">08-opsclaw-export-readable.json-turn-1</a></td>
+          <td>monitoring</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>逐条暴露原文</h2>
+    
+<article class="case" id="case-0">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>me-alert-triage</h3>
+      <p class="meta">alert · 监控专家 · OpsClaw Web Console · 93 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>现在最紧急的告警是哪一条？影响什么业务？我先处理谁？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">结论：先处理 P1 `checkout-5xx`，不要先看 CPU。
+
+- 对象：checkout-api / 生产
+- 现象：近 12 分钟 5xx 从 0.3% 升到 7.8%
+- 影响：下单失败，收银台已有用户投诉迹象
+- 建议：先看 gw-3 实例和下游 pay-svc，CPU 告警可以后置</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:75%"></b></i><em>75</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:60%"></b></i><em>60</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-1">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>me-alert-json-unreadable</h3>
+      <p class="meta">alert · 监控专家 · OpsClaw Web Console · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。终局回答是告警平台原始 JSON。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。</p>
+  <div class="fails"><span class="tag bad">ALERTJSON 告警平台原始 JSON 当作回答</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>现在最紧急的告警是哪一条？影响什么业务？我先处理谁？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">{&quot;status&quot;:&quot;success&quot;,&quot;alerts&quot;:[{&quot;labels&quot;:{&quot;alertname&quot;:&quot;checkout-5xx&quot;,&quot;severity&quot;:&quot;critical&quot;,&quot;instance&quot;:&quot;gw-3&quot;},&quot;annotation</mark>s&quot;:{&quot;summary&quot;:&quot;5xx high&quot;},&quot;fingerprint&quot;:&quot;9af3&quot;,&quot;generatorURL&quot;:&quot;http://prometheus/graph&quot;}]}</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-2">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>me-cpu-readable</h3>
+      <p class="meta">metric · 监控专家 · OpsClaw Web Console · 97 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>生产主机 CPU 持续 90% 以上，要不要扩容？用一句话说结论。</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">结论：先不要扩容。这是单机批处理打满了 CPU，延迟没有一起涨。建议先看 job=batch 的进程，观察 15 分钟；若延迟也过 200ms 再扩。</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:89%"></b></i><em>89</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:77%"></b></i><em>77</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-3">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>me-promql-unreadable</h3>
+      <p class="meta">query · 监控专家 · OpsClaw Web Console · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。终局回答几乎只是 PromQL/查询语句。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。</p>
+  <div class="fails"><span class="tag bad">PROMQL 原始 PromQL/查询语句当作回答</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">sum(rate(http_requests_total{job=&quot;gateway&quot;,code=~&quot;5..&quot;}[15m])) / sum(rate(http_requests_total{job=&quot;gateway&quot;}[15m]))</mark></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:15%"></b></i><em>15</em></div><div class="dim"><span>自然语言</span><i><b style="width:48%"></b></i><em>48</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:9%"></b></i><em>9</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:10%"></b></i><em>10</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:52%"></b></i><em>52</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-4">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>me-series-unreadable</h3>
+      <p class="meta">metric · 监控专家 · OpsClaw Web Console · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。终局回答是时序点或主机列表 dump，没有给出口语结论。</p>
+  <div class="fails"><span class="tag bad">SERIES 时序点/主机列表 dump，没有结论</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>api-1 和 api-2 最近 30 分钟负载差在哪？哪台更危险？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">1710000000 0.21
+1710000060 0.28
+1710000120 0.66
+1710000180 0.71
+1710000240 0.84
+1710000300 0.91
+10.0.1.11 91
+10.0.1.12 3</mark>7
+10.0.1.13 41
+10.0.1.14 39</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:15%"></b></i><em>15</em></div><div class="dim"><span>自然语言</span><i><b style="width:10%"></b></i><em>10</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:12%"></b></i><em>12</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:10%"></b></i><em>10</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:55%"></b></i><em>55</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-5">
+  <header>
+    <div class="badge partial">部分能看懂</div>
+    <div>
+      <h3>me-mixed-partial</h3>
+      <p class="meta">alert · 监控专家 · OpsClaw Web Console · 45 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>部分能看懂。回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。</p>
+  <div class="fails"><span class="tag bad">DOM 无障碍树或 HTML/选择器 dump</span> <span class="tag bad">TRACE 工具调用日志当作回答</span> <span class="tag bad">MIX 结论被日志淹没</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>昨晚 22:00 左右的磁盘告警后来恢复了吗？如果恢复了，大约什么时候？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">磁盘告警已恢复，大约 22:47。
+
+```json
+{&quot;status&quot;:&quot;resolved&quot;,&quot;alerts&quot;:[{&quot;labels&quot;:{&quot;alertname&quot;</mark>:&quot;disk_usage_high&quot;,&quot;device&quot;:&quot;/dev/vda1&quot;},&quot;annotations&quot;:{&quot;description&quot;:&quot;disk 92%&quot;},&quot;fingerprint&quot;:&quot;ab12&quot;,&quot;generatorURL&quot;:&quot;http://prometheus.internal/graph?g0.expr=node_filesystem_avail_bytes&quot;}],<mark class="bad">&quot;tool_call&quot;:</mark>&quot;prometheus_query_range&quot;,&quot;selector&quot;:&quot;html &gt; body &gt; div#grafana&quot;}
+```
+RootWebArea &quot;Alertmanager&quot;
+  <mark class="bad">[button]</mark> Silence
+  [heading] disk_usage_high
+  html &gt; body &gt; div &gt; table &gt; tr</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:22%"></b></i><em>22</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:75%"></b></i><em>75</em></div><div class="dim"><span>任务相关</span><i><b style="width:80%"></b></i><em>80</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-6">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>me-plan-unreadable</h3>
+      <p class="meta">workflow · 监控专家 · OpsClaw Web Console · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。只宣布下一步操作，没有给出任务结果。</p>
+  <div class="fails"><span class="tag bad">PLAN 只描述下一步操作，无任务结果</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">好的，我将打开 Prometheus 并点击 5xx 面板。</mark></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:55%"></b></i><em>55</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:69%"></b></i><em>69</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:22%"></b></i><em>22</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-7">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>08-opsclaw-export-readable.json-turn-1</h3>
+      <p class="meta">monitoring · 监控专家 · OpsClaw Web Console · 100 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>当前有没有正在响的 P1？没有就直接说没有。</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">当前没有正在响的 P1。有 2 条 P3（磁盘预警、证书 30 天到期），都不需要叫人。</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:100%"></b></i><em>100</em></div>
+      
+    </section>
+  </div>
+</article>
+  </main>
+</body>
+</html>

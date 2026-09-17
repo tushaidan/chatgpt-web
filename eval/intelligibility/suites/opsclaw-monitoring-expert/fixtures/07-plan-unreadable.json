@@ -1,0 +1,10 @@
+{
+  "run_id": "me-plan-unreadable",
+  "agent": "监控专家",
+  "scenario": "workflow",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "如果 5xx 在涨，我下一步应该先看哪个监控，还是先看日志？给值班指令，不要说你将去点击。",
+  "final_answer": "好的，我将打开 Prometheus 并点击 5xx 面板。",
+  "_expected": { "verdict": "unreadable" }
+}

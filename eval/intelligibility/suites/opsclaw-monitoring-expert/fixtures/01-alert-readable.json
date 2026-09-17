@@ -1,0 +1,13 @@
+{
+  "run_id": "me-alert-triage",
+  "agent": "监控专家",
+  "scenario": "alert",
+  "locale": "zh-CN",
+  "target": {
+    "browser": "OpsClaw Web Console",
+    "url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14"
+  },
+  "user_query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+  "final_answer": "结论：先处理 P1 `checkout-5xx`，不要先看 CPU。\n\n- 对象：checkout-api / 生产\n- 现象：近 12 分钟 5xx 从 0.3% 升到 7.8%\n- 影响：下单失败，收银台已有用户投诉迹象\n- 建议：先看 gw-3 实例和下游 pay-svc，CPU 告警可以后置",
+  "_expected": { "verdict": "readable" }
+}

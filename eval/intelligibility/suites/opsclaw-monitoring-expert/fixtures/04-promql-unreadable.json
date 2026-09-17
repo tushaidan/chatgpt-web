@@ -1,0 +1,10 @@
+{
+  "run_id": "me-promql-unreadable",
+  "agent": "监控专家",
+  "scenario": "query",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "最近 15 分钟网关 5xx 有没有异常？如果有，大概到什么量级？",
+  "final_answer": "sum(rate(http_requests_total{job=\"gateway\",code=~\"5..\"}[15m])) / sum(rate(http_requests_total{job=\"gateway\"}[15m]))",
+  "_expected": { "verdict": "unreadable" }
+}

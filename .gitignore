@@ -30,3 +30,9 @@ coverage
 
 # Environment variables files
 /service/.env
+
+# Intelligibility eval generated reports
+eval/intelligibility/out/
+eval/intelligibility/suites/**/out/
+eval/intelligibility/suites/**/transcripts/*.json
+eval/intelligibility/suites/**/transcripts/*.txt

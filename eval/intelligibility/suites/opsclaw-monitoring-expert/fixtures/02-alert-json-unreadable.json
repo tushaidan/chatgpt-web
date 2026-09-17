@@ -1,0 +1,10 @@
+{
+  "run_id": "me-alert-json-unreadable",
+  "agent": "监控专家",
+  "scenario": "alert",
+  "locale": "zh-CN",
+  "target": { "browser": "OpsClaw Web Console" },
+  "user_query": "现在最紧急的告警是哪一条？影响什么业务？我先处理谁？",
+  "final_answer": "{\"status\":\"success\",\"alerts\":[{\"labels\":{\"alertname\":\"checkout-5xx\",\"severity\":\"critical\",\"instance\":\"gw-3\"},\"annotations\":{\"summary\":\"5xx high\"},\"fingerprint\":\"9af3\",\"generatorURL\":\"http://prometheus/graph\"}]}",
+  "_expected": { "verdict": "unreadable" }
+}

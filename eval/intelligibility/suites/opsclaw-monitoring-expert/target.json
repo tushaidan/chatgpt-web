@@ -1,0 +1,11 @@
+{
+  "id": "opsclaw-monitoring-expert",
+  "name_zh": "监控专家",
+  "product": "OpsOne / OpsClaw",
+  "entry_url": "https://opsone-cn-wulan-env148-d01.console.intra.env148.shuguang.com/aiops/opsclaw/my-conversation?agentId=a3fda524-7f2c-4c52-94ca-7b4198941a14",
+  "agent_id": "a3fda524-7f2c-4c52-94ca-7b4198941a14",
+  "locale": "zh-CN",
+  "audience": "值班人员 / SRE",
+  "browser": "OpsClaw Web Console",
+  "eval_question": "值班人员不打开 Prometheus、不看工具 JSON，能否看懂监控专家的终局回答？"
+}

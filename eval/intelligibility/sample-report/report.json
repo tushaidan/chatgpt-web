@@ -1,0 +1,683 @@
+{
+  "title": "浏览器 Agent 回答可理解度评测报告（夹具样例）",
+  "generated_at": "2026-09-17T05:13:06.792Z",
+  "input": "/workspace/eval/intelligibility/fixtures",
+  "summary": {
+    "total": 10,
+    "counts": {
+      "readable": 3,
+      "partial": 1,
+      "unreadable": 6
+    },
+    "readable_rate": 0.3,
+    "partial_rate": 0.1,
+    "unreadable_rate": 0.6,
+    "avg_score": 48.8,
+    "failure_counts": {
+      "DOM": 4,
+      "LANG": 4,
+      "TRACE": 3,
+      "MIX": 1,
+      "SCREEN": 1,
+      "PLAN": 1,
+      "ENC": 1,
+      "JSON": 1
+    },
+    "needs_human_review": 0,
+    "pass_gate": false,
+    "gate": {
+      "release_min_readable_rate": 0.85,
+      "release_max_unreadable_rate": 0.05,
+      "review_disagreement": true
+    },
+    "question": "不看工具轨迹、不了解浏览器自动化的普通人，能否看懂智能体最终回答？"
+  },
+  "results": [
+    {
+      "run_id": "fx-weather-readable",
+      "agent": "demo-browser-agent",
+      "scenario": "extract",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "https://weather.example.com",
+        "viewport": ""
+      },
+      "user_query": "帮我看一下今天北京天气，要不要带伞？",
+      "user_visible_text": "今天北京晴到多云，气温 12～21℃，降水概率约 10%，空气质量良。\n\n结论：白天不用带伞。早晚略凉，出门建议加一件薄外套。",
+      "trace_excerpt": "open https://weather.example.com",
+      "score": 93,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 1,
+        "extractable_answer": 0.75,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.6
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 93,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "readable"
+      }
+    },
+    {
+      "run_id": "fx-a11y-dump-unreadable",
+      "agent": "demo-browser-agent",
+      "scenario": "search",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "https://www.google.com",
+        "viewport": ""
+      },
+      "user_query": "搜索附近的咖啡店",
+      "user_visible_text": "RootWebArea \"Google\"\n  [heading] Google\n  [combobox] Search\n  [button] Google Search\n  [button] I'm Feeling Lucky\n  [link] Gmail\n  [link] Images\n  html > body > div#app > div.main > form > input.gLFyf\n  [listitem] Starbucks\n  [listitem] Luckin Coffee\n  [button] Directions",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0,
+        "trace_leak": 0,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "DOM",
+          "label": "无障碍树或 HTML/选择器 dump",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 23,
+          "end": 32,
+          "kind": "bad",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "fx-mixed-partial",
+      "agent": "demo-browser-agent",
+      "scenario": "checkout",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "https://shop.example.com/cart",
+        "viewport": ""
+      },
+      "user_query": "购物车现在多少钱？商品加进去了吗？",
+      "user_visible_text": "商品已加入购物车，当前合计 ¥128。\n\n```json\n{\n  \"tool_call\": \"browser_click\",\n  \"selector\": \"html > body > div#app > div.checkout > button.add-to-cart\",\n  \"action\": \"click\",\n  \"nth-child(3)\": true,\n  \"aria-label\": \"Add to cart\",\n  \"trace\": [\"click\", \"wait_for\", \"screenshot\"]\n}\n```\nRootWebArea \"Cart\"\n  [button] Checkout\n  [heading] Order summary\n  html > body > div > span.price",
+      "trace_excerpt": "",
+      "score": 48,
+      "verdict": "partial",
+      "verdict_zh": "部分能看懂",
+      "human_can_understand": false,
+      "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0.30978728414442697,
+        "extractable_answer": 0.5,
+        "trace_leak": 0.28516483516483515,
+        "visual_explain": 1,
+        "cognitive_load": 0.7644230769230769,
+        "task_relevance": 0.6
+      },
+      "failures": [
+        {
+          "code": "DOM",
+          "label": "无障碍树或 HTML/选择器 dump",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "code": "TRACE",
+          "label": "工具调用日志当作回答",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "code": "MIX",
+          "label": "结论被日志淹没",
+          "note": "有自然语言结论，但被轨迹/JSON/DOM 淹没。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 288,
+          "end": 296,
+          "kind": "bad",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "start": 33,
+          "end": 45,
+          "kind": "bad",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "start": 288,
+          "end": 296,
+          "kind": "warn",
+          "note": "有自然语言结论，但被轨迹/JSON/DOM 淹没。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+        "回答主体是工具调用/浏览器操作日志。",
+        "有自然语言结论，但被轨迹/JSON/DOM 淹没。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 48,
+        "verdict": "partial",
+        "verdict_zh": "部分能看懂",
+        "human_can_understand": false,
+        "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "partial"
+      }
+    },
+    {
+      "run_id": "fx-screenshot-only-unreadable",
+      "agent": "demo-browser-agent",
+      "scenario": "extract",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "https://news.example.com",
+        "viewport": ""
+      },
+      "user_query": "这个页面的标题和第一段在说什么？",
+      "user_visible_text": "",
+      "trace_excerpt": "",
+      "score": 15,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "终局没有文字，只给了未说明的截图。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0,
+        "trace_leak": 1,
+        "visual_explain": 0,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "SCREEN",
+          "label": "截图无文字解释",
+          "note": "终局没有文字，只给了未说明的截图。"
+        }
+      ],
+      "highlights": [],
+      "evidence": [
+        "终局没有文字，只给了未说明的截图。"
+      ],
+      "heuristic": {
+        "score": 15,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "终局没有文字，只给了未说明的截图。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "fx-plan-only-unreadable",
+      "agent": "demo-browser-agent",
+      "scenario": "search",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "https://weather.example.com",
+        "viewport": ""
+      },
+      "user_query": "今天上海会下雨吗？",
+      "user_visible_text": "好的，我将打开天气网站并点击搜索按钮。",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "只宣布下一步操作，没有给出任务结果。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0.5499999999999999,
+        "natural_language": 1,
+        "extractable_answer": 0.55,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.04999999999999993
+      },
+      "failures": [
+        {
+          "code": "PLAN",
+          "label": "只描述下一步操作，无任务结果",
+          "note": "只宣布下一步操作，没有给出任务结果。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 19,
+          "kind": "bad",
+          "note": "只宣布下一步操作，没有给出任务结果。"
+        }
+      ],
+      "evidence": [
+        "只宣布下一步操作，没有给出任务结果。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "只宣布下一步操作，没有给出任务结果。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "fx-mojibake-unreadable",
+      "agent": "demo-browser-agent",
+      "scenario": "extract",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "",
+        "viewport": ""
+      },
+      "user_query": "页面上的活动名称是什么？",
+      "user_visible_text": "ä»Šå¤©åŒ—äº¬æ™´å¤©æ°”Ã¤Â¸Â­Ã¦â€“â€¡ä¹±ç Ã¥â€ â€¦Ã¥Â®Â¹Ã¤Â¸ÂÃ¥ÂÂ¯Ã¨Â¯Â»",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "出现乱码、替换字符或异常控制字符。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 0.30000000000000004,
+        "audience": 0.44999999999999996,
+        "natural_language": 0,
+        "extractable_answer": 0.2,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "ENC",
+          "label": "乱码/替换字符/不可打印字符",
+          "note": "出现乱码、替换字符或异常控制字符。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 73,
+          "kind": "bad",
+          "note": "出现乱码、替换字符或异常控制字符。"
+        }
+      ],
+      "evidence": [
+        "出现乱码、替换字符或异常控制字符。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "出现乱码、替换字符或异常控制字符。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "fx-json-payload-unreadable",
+      "agent": "demo-browser-agent",
+      "scenario": "extract",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "chromium",
+        "url": "",
+        "viewport": ""
+      },
+      "user_query": "北京今天气温多少度？",
+      "user_visible_text": "{\"status\":\"ok\",\"tool_call\":\"browser_navigate\",\"selector\":\"html > body > div#root > span.temp\",\"data\":{\"city\":\"Beijing\",\"temp\":21,\"aqi\":64}}",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "整段回答是原始 JSON。 回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0,
+        "trace_leak": 0,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "JSON",
+          "label": "原始结构化载荷当作回答",
+          "note": "整段回答是原始 JSON。"
+        },
+        {
+          "code": "DOM",
+          "label": "无障碍树或 HTML/选择器 dump",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "code": "TRACE",
+          "label": "工具调用日志当作回答",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 0,
+          "end": 139,
+          "kind": "bad",
+          "note": "整段回答是原始 JSON。"
+        },
+        {
+          "start": 15,
+          "end": 27,
+          "kind": "bad",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "整段回答是原始 JSON。",
+        "回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+        "回答主体是工具调用/浏览器操作日志。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "整段回答是原始 JSON。 回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "unreadable"
+      }
+    },
+    {
+      "run_id": "fx-product-compare-readable",
+      "agent": "demo-browser-agent",
+      "scenario": "extract",
+      "locale": "en-US",
+      "target": {
+        "browser": "chromium",
+        "url": "https://store.example.com",
+        "viewport": ""
+      },
+      "user_query": "Compare the iPhone 15 and Pixel 8 camera in one short table.",
+      "user_visible_text": "Here is a short camera comparison from the product pages:\n\n| Item | iPhone 15 | Pixel 8 |\n| --- | --- | --- |\n| Main sensor | 48 MP | 50 MP |\n| Video | 4K60 | 4K60 |\n| Night mode | Yes | Yes, typically stronger |\n\nBottom line: Pixel 8 is better in night shots; iPhone 15 is more consistent in video.",
+      "trace_excerpt": "",
+      "score": 99,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 0.9460222772277227,
+        "extractable_answer": 1,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 1
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 99,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": {
+        "verdict": "readable"
+      }
+    },
+    {
+      "run_id": "09-chatgpt-web-export.json-1002",
+      "agent": "chatgpt-web",
+      "scenario": "chat-ui",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "web-ui",
+        "url": "",
+        "viewport": ""
+      },
+      "user_query": "帮我看看明天杭州到上海的高铁还有票吗？",
+      "user_visible_text": "明天杭州到上海高铁仍有余票。较宽松的班次是 G7369（08:28 开）和 G7531（14:05 开），二等座都有票。建议优先买早上这趟，行程约 1 小时 15 分。",
+      "trace_excerpt": "",
+      "score": 93,
+      "verdict": "readable",
+      "verdict_zh": "人能看懂",
+      "human_can_understand": true,
+      "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 1,
+        "natural_language": 1,
+        "extractable_answer": 0.75,
+        "trace_leak": 1,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.6
+      },
+      "failures": [],
+      "highlights": [],
+      "evidence": [],
+      "heuristic": {
+        "score": 93,
+        "verdict": "readable",
+        "verdict_zh": "人能看懂",
+        "human_can_understand": true,
+        "summary": "终局回答是自然语言，普通人不用看轨迹也能理解结论。"
+      },
+      "judge": null,
+      "expected": null
+    },
+    {
+      "run_id": "09-chatgpt-web-export.json-1003",
+      "agent": "chatgpt-web",
+      "scenario": "chat-ui",
+      "locale": "zh-CN",
+      "target": {
+        "browser": "web-ui",
+        "url": "",
+        "viewport": ""
+      },
+      "user_query": "这个报错是什么意思？",
+      "user_visible_text": "browser_click(\"html > body > div#root > button.error\")\nAction: screenshot\n[heading] Error\n[button] Retry\n{\"function_call\":\"wait_for\",\"selector\":\"nth-child(2)\"}",
+      "trace_excerpt": "",
+      "score": 28,
+      "verdict": "unreadable",
+      "verdict_zh": "人看不懂",
+      "human_can_understand": false,
+      "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。",
+      "needs_human_review": false,
+      "source": "heuristic",
+      "dimensions": {
+        "surface": 1,
+        "audience": 0,
+        "natural_language": 0,
+        "extractable_answer": 0,
+        "trace_leak": 0,
+        "visual_explain": 1,
+        "cognitive_load": 1,
+        "task_relevance": 0.35
+      },
+      "failures": [
+        {
+          "code": "DOM",
+          "label": "无障碍树或 HTML/选择器 dump",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "code": "TRACE",
+          "label": "工具调用日志当作回答",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "code": "LANG",
+          "label": "用户无法阅读的语言或界面字符串堆砌",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "highlights": [
+        {
+          "start": 74,
+          "end": 83,
+          "kind": "bad",
+          "note": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。"
+        },
+        {
+          "start": 0,
+          "end": 14,
+          "kind": "bad",
+          "note": "回答主体是工具调用/浏览器操作日志。"
+        },
+        {
+          "start": 0,
+          "end": 80,
+          "kind": "bad",
+          "note": "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+        }
+      ],
+      "evidence": [
+        "回答主体是无障碍树、HTML 或 CSS 选择器 dump。",
+        "回答主体是工具调用/浏览器操作日志。",
+        "用户问题语言与回答语言明显不一致，或界面字符串堆砌。"
+      ],
+      "heuristic": {
+        "score": 28,
+        "verdict": "unreadable",
+        "verdict_zh": "人看不懂",
+        "human_can_understand": false,
+        "summary": "回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。"
+      },
+      "judge": null,
+      "expected": null
+    }
+  ]
+}
