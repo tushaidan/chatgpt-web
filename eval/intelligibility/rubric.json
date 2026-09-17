@@ -1,0 +1,90 @@
+{
+  "name": "browser-agent-answer-intelligibility",
+  "version": "1.0.0",
+  "question": "不看工具轨迹、不了解浏览器自动化的普通人，能否看懂智能体最终回答？",
+  "verdicts": {
+    "readable": {
+      "label_zh": "人能看懂",
+      "min_score": 75,
+      "definition": "终局回答是自然语言，结论可直接找到，无需阅读 DOM/选择器/工具 JSON/截图原图。"
+    },
+    "partial": {
+      "label_zh": "部分能看懂",
+      "min_score": 45,
+      "definition": "有可用结论，但夹杂轨迹、术语、过长原文或语言别扭；普通人需要费力挑拣。"
+    },
+    "unreadable": {
+      "label_zh": "人看不懂",
+      "min_score": 0,
+      "definition": "乱码、空回答、纯机器日志、纯截图无说明、只说下一步操作而没有结果，或结论完全淹没在 dump 中。"
+    }
+  },
+  "hard_fail_codes": ["EMPTY", "ENC", "TRACE", "DOM", "SCREEN", "PLAN"],
+  "dimensions": [
+    {
+      "id": "surface",
+      "weight": 0.15,
+      "label_zh": "表面完整",
+      "pass": "编码正常，无替换字符/二进制/截断乱码。"
+    },
+    {
+      "id": "audience",
+      "weight": 0.2,
+      "label_zh": "面向用户",
+      "pass": "终局内容是给人看的答案，而不是内部 trace。"
+    },
+    {
+      "id": "natural_language",
+      "weight": 0.15,
+      "label_zh": "自然语言",
+      "pass": "以完整句子或结构化小标题表达，而不是选择器、角色树、函数调用。"
+    },
+    {
+      "id": "extractable_answer",
+      "weight": 0.2,
+      "label_zh": "结论可抽取",
+      "pass": "10 秒内能找到任务结论；关键数字/状态靠前。"
+    },
+    {
+      "id": "trace_leak",
+      "weight": 0.12,
+      "label_zh": "轨迹隔离",
+      "pass": "工具调用、a11y 树、原始 HTML/JSON 不作为用户正文。"
+    },
+    {
+      "id": "visual_explain",
+      "weight": 0.08,
+      "label_zh": "视觉可解释",
+      "pass": "截图有文字说明；不把未标注截图当作答案。"
+    },
+    {
+      "id": "cognitive_load",
+      "weight": 0.05,
+      "label_zh": "认知负担",
+      "pass": "长度适中，有段落或列表，不是一面墙日志。"
+    },
+    {
+      "id": "task_relevance",
+      "weight": 0.05,
+      "label_zh": "任务相关",
+      "pass": "回答对准用户问题，而不是只报告点击了什么。"
+    }
+  ],
+  "failures": {
+    "EMPTY": "空回答或占位符",
+    "ENC": "乱码/替换字符/不可打印字符",
+    "TRACE": "工具调用日志当作回答",
+    "DOM": "无障碍树或 HTML/选择器 dump",
+    "JSON": "原始结构化载荷当作回答",
+    "SCREEN": "截图无文字解释",
+    "PLAN": "只描述下一步操作，无任务结果",
+    "MIX": "结论被日志淹没",
+    "LANG": "用户无法阅读的语言或界面字符串堆砌",
+    "WALL": "超长无结构文本"
+  },
+  "gate": {
+    "release_min_readable_rate": 0.85,
+    "release_max_unreadable_rate": 0.05,
+    "review_disagreement": true
+  }
+}

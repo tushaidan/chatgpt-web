@@ -1,3 +1,8 @@
+## Unreleased
+
+### Other
+- 新增浏览器 Agent 回答可理解度评测方案与报告工具（`docs/browser-agent-intelligibility-eval.md`，`eval/intelligibility/`）
+
 ## v2.10.9
 
 `2023-04-03`

@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-json-payload-unreadable",
+  "agent": "demo-browser-agent",
+  "scenario": "extract",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium" },
+  "user_query": "北京今天气温多少度？",
+  "final_answer": "{\"status\":\"ok\",\"tool_call\":\"browser_navigate\",\"selector\":\"html > body > div#root > span.temp\",\"data\":{\"city\":\"Beijing\",\"temp\":21,\"aqi\":64}}",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "{\"status\":\"ok\",\"tool_call\":\"browser_navigate\",\"selector\":\"html > body > div#root > span.temp\",\"data\":{\"city\":\"Beijing\",\"temp\":21,\"aqi\":64}}" }
+  ],
+  "_expected": { "verdict": "unreadable" }
+}

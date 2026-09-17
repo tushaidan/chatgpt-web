@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-a11y-dump-unreadable",
+  "agent": "demo-browser-agent",
+  "scenario": "search",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium", "url": "https://www.google.com" },
+  "user_query": "搜索附近的咖啡店",
+  "final_answer": "RootWebArea \"Google\"\n  [heading] Google\n  [combobox] Search\n  [button] Google Search\n  [button] I'm Feeling Lucky\n  [link] Gmail\n  [link] Images\n  html > body > div#app > div.main > form > input.gLFyf\n  [listitem] Starbucks\n  [listitem] Luckin Coffee\n  [button] Directions",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "RootWebArea \"Google\"\n  [heading] Google\n  [combobox] Search\n  [button] Google Search\n  [button] I'm Feeling Lucky\n  [link] Gmail\n  [link] Images\n  html > body > div#app > div.main > form > input.gLFyf\n  [listitem] Starbucks\n  [listitem] Luckin Coffee\n  [button] Directions" }
+  ],
+  "_expected": { "verdict": "unreadable" }
+}

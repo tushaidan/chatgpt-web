@@ -1,0 +1,15 @@
+{
+  "run_id": "fx-weather-readable",
+  "agent": "demo-browser-agent",
+  "scenario": "extract",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium", "url": "https://weather.example.com" },
+  "user_query": "帮我看一下今天北京天气，要不要带伞？",
+  "final_answer": "今天北京晴到多云，气温 12～21℃，降水概率约 10%，空气质量良。\n\n结论：白天不用带伞。早晚略凉，出门建议加一件薄外套。",
+  "messages": [
+    { "role": "user", "channel": "user_visible", "content": "帮我看一下今天北京天气，要不要带伞？" },
+    { "role": "tool", "channel": "trace", "name": "browser_navigate", "content": "open https://weather.example.com" },
+    { "role": "assistant", "channel": "user_visible", "content": "今天北京晴到多云，气温 12～21℃，降水概率约 10%，空气质量良。\n\n结论：白天不用带伞。早晚略凉，出门建议加一件薄外套。" }
+  ],
+  "_expected": { "verdict": "readable" }
+}

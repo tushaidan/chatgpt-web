@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-mixed-partial",
+  "agent": "demo-browser-agent",
+  "scenario": "checkout",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium", "url": "https://shop.example.com/cart" },
+  "user_query": "购物车现在多少钱？商品加进去了吗？",
+  "final_answer": "商品已加入购物车，当前合计 ¥128。\n\n```json\n{\n  \"tool_call\": \"browser_click\",\n  \"selector\": \"html > body > div#app > div.checkout > button.add-to-cart\",\n  \"action\": \"click\",\n  \"nth-child(3)\": true,\n  \"aria-label\": \"Add to cart\",\n  \"trace\": [\"click\", \"wait_for\", \"screenshot\"]\n}\n```\nRootWebArea \"Cart\"\n  [button] Checkout\n  [heading] Order summary\n  html > body > div > span.price",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "商品已加入购物车，当前合计 ¥128。\n\n```json\n{\n  \"tool_call\": \"browser_click\",\n  \"selector\": \"html > body > div#app > div.checkout > button.add-to-cart\",\n  \"action\": \"click\",\n  \"nth-child(3)\": true,\n  \"aria-label\": \"Add to cart\",\n  \"trace\": [\"click\", \"wait_for\", \"screenshot\"]\n}\n```\nRootWebArea \"Cart\"\n  [button] Checkout\n  [heading] Order summary\n  html > body > div > span.price" }
+  ],
+  "_expected": { "verdict": "partial" }
+}

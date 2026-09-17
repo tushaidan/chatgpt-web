@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-mojibake-unreadable",
+  "agent": "demo-browser-agent",
+  "scenario": "extract",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium" },
+  "user_query": "页面上的活动名称是什么？",
+  "final_answer": "ä»Šå¤©åŒ—äº¬æ™´å¤©æ°”Ã¤Â¸Â­Ã¦â€“â€¡ä¹±ç Ã¥â€ â€¦Ã¥Â®Â¹Ã¤Â¸ÂÃ¥ÂÂ¯Ã¨Â¯Â»",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "ä»Šå¤©åŒ—äº¬æ™´å¤©æ°”Ã¤Â¸Â­Ã¦â€“â€¡ä¹±ç Ã¥â€ â€¦Ã¥Â®Â¹Ã¤Â¸ÂÃ¥ÂÂ¯Ã¨Â¯Â»" }
+  ],
+  "_expected": { "verdict": "unreadable" }
+}

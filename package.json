@@ -19,6 +19,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "bootstrap": "pnpm install && pnpm run common:prepare",
+    "eval:intelligibility": "node eval/intelligibility/cli.mjs",
+    "test:intelligibility": "node eval/intelligibility/test.mjs",
     "common:cleanup": "rimraf node_modules && rimraf pnpm-lock.yaml",
     "common:prepare": "husky install"
   },

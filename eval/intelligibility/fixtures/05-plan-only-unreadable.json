@@ -1,0 +1,13 @@
+{
+  "run_id": "fx-plan-only-unreadable",
+  "agent": "demo-browser-agent",
+  "scenario": "search",
+  "locale": "zh-CN",
+  "target": { "browser": "chromium", "url": "https://weather.example.com" },
+  "user_query": "今天上海会下雨吗？",
+  "final_answer": "好的，我将打开天气网站并点击搜索按钮。",
+  "messages": [
+    { "role": "assistant", "channel": "user_visible", "content": "好的，我将打开天气网站并点击搜索按钮。" }
+  ],
+  "_expected": { "verdict": "unreadable" }
+}

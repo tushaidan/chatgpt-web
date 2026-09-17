@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tushaidan/chatgpt-web/eval/intelligibility/schema.json",
+  "title": "BrowserAgentIntelligibilityTranscript",
+  "description": "浏览器 Agent 单次任务轨迹。评测器优先看用户可见终局回答，轨迹仅作上下文。",
+  "type": "object",
+  "required": ["run_id", "user_query"],
+  "additionalProperties": true,
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "agent": { "type": "string" },
+    "scenario": { "type": "string", "description": "任务场景标签，如 search / form / checkout / extract" },
+    "locale": { "type": "string", "description": "用户期望语言，如 zh-CN、en-US" },
+    "target": {
+      "type": "object",
+      "properties": {
+        "browser": { "type": "string" },
+        "url": { "type": "string" },
+        "viewport": { "type": "string" }
+      }
+    },
+    "user_query": { "type": "string" },
+    "final_answer": { "type": "string", "description": "用户最终看到的回答。缺省则取最后一条 user_visible assistant 消息。" },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": { "enum": ["user", "assistant", "tool", "system"] },
+          "channel": {
+            "enum": ["user_visible", "trace", "thought"],
+            "description": "user_visible=对用户展示；trace=工具/DOM/截图日志；thought=内部推理"
+          },
+          "content": { "type": "string" },
+          "name": { "type": "string" },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "caption": { "type": "string" },
+                "alt": { "type": "string" },
+                "url": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "_expected": {
+      "type": "object",
+      "description": "仅夹具使用，评测时忽略。",
+      "properties": {
+        "verdict": { "enum": ["readable", "partial", "unreadable"] }
+      }
+    }
+  }
+}

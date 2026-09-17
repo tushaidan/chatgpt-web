@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>浏览器 Agent 回答可理解度评测报告（夹具样例）</title>
+  <style>
+    :root { --bg:#0f1419; --card:#171e26; --ink:#e8eef6; --muted:#9aa8b7; --ok:#3dd68c; --warn:#f5c14a; --bad:#ff6b6b; --line:#243040; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "IBM Plex Sans", "Noto Sans SC", sans-serif; background:var(--bg); color:var(--ink); line-height:1.55; }
+    header.hero, main { max-width: 1120px; margin:0 auto; padding: 32px 20px; }
+    header.hero h1 { margin:0 0 8px; font-size: 28px; }
+    header.hero p { color: var(--muted); margin: 0 0 18px; }
+    .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; }
+    .kpi { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; }
+    .kpi b { display:block; font-size:28px; }
+    .kpi.readable b { color: var(--ok); }
+    .kpi.partial b { color: var(--warn); }
+    .kpi.unreadable b { color: var(--bad); }
+    .gate { margin-top:16px; padding:10px 14px; border-radius:10px; display:inline-block; }
+    .gate.pass { background:#123226; color:var(--ok); }
+    .gate.fail { background:#3a1518; color:var(--bad); }
+    table { width:100%; border-collapse: collapse; background:var(--card); border-radius:12px; overflow:hidden; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; }
+    a { color:#8cb4ff; }
+    .badge { min-width:108px; text-align:center; padding:6px 10px; border-radius:999px; font-weight:700; }
+    .badge.readable { background:#123226; color:var(--ok); }
+    .badge.partial { background:#3a2e10; color:var(--warn); }
+    .badge.unreadable { background:#3a1518; color:var(--bad); }
+    .case { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin: 18px 0 28px; }
+    .case header { display:flex; gap:14px; align-items:center; }
+    .case h3 { margin:0; }
+    .meta, .ask { color:var(--muted); }
+    .ask { color:var(--ink); }
+    .grid { display:grid; grid-template-columns: 1.3fr .9fr; gap:16px; }
+    pre { white-space: pre-wrap; word-break: break-word; background:#0c1015; padding:12px; border-radius:10px; font-size:13px; }
+    pre.trace { max-height: 220px; overflow:auto; color:var(--muted); }
+    mark.bad { background:#5a1d22; color:#ffd6d6; padding:0 2px; }
+    mark.warn { background:#4a3b12; color:#ffe9b0; padding:0 2px; }
+    .tag { display:inline-block; font-size:12px; padding:3px 8px; border-radius:999px; margin: 0 6px 6px 0; }
+    .tag.ok { background:#123226; color:var(--ok); }
+    .tag.bad { background:#3a1518; color:var(--bad); }
+    .dim { display:grid; grid-template-columns: 88px 1fr 36px; gap:8px; align-items:center; font-size:12px; margin: 6px 0; color:var(--muted); }
+    .dim i { height:8px; background:#0c1015; border-radius:99px; display:block; }
+    .dim b { display:block; height:8px; background:#6ea8ff; border-radius:99px; }
+    .empty { color:var(--bad); }
+    @media (max-width: 860px) { .kpis, .grid { grid-template-columns: 1fr; } .case header { align-items:flex-start; flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>浏览器 Agent 回答可理解度评测报告（夹具样例）</h1>
+    <p>不看工具轨迹、不了解浏览器自动化的普通人，能否看懂智能体最终回答？<br/>生成时间 2026-09-17T05:13:06.792Z · 样本 10 · 平均分 48.8</p>
+    <div class="kpis">
+      <div class="kpi readable"><span>人能看懂</span><b>30%</b><small>3 条</small></div>
+      <div class="kpi partial"><span>部分能看懂</span><b>10%</b><small>1 条</small></div>
+      <div class="kpi unreadable"><span>人看不懂</span><b>60%</b><small>6 条</small></div>
+      <div class="kpi"><span>平均分</span><b>48.8</b><small>门槛 85% 可读</small></div>
+    </div>
+    <div class="gate fail">发布门槛：未通过（可读率 ≥ 85% 且不可读率 ≤ 5%）</div>
+  </header>
+  <main>
+    <h2>总览</h2>
+    <table>
+      <thead><tr><th>人能看懂吗</th><th>分数</th><th>Run</th><th>场景</th><th>失败</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>93</td>
+          <td><a href="#case-0">fx-weather-readable</a></td>
+          <td>extract</td>
+          <td>-</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-1">fx-a11y-dump-unreadable</a></td>
+          <td>search</td>
+          <td>DOM, LANG</td>
+        </tr><tr>
+          <td><span class="badge partial">部分能看懂</span></td>
+          <td>48</td>
+          <td><a href="#case-2">fx-mixed-partial</a></td>
+          <td>checkout</td>
+          <td>DOM, TRACE, MIX, LANG</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>15</td>
+          <td><a href="#case-3">fx-screenshot-only-unreadable</a></td>
+          <td>extract</td>
+          <td>SCREEN</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-4">fx-plan-only-unreadable</a></td>
+          <td>search</td>
+          <td>PLAN</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-5">fx-mojibake-unreadable</a></td>
+          <td>extract</td>
+          <td>ENC</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-6">fx-json-payload-unreadable</a></td>
+          <td>extract</td>
+          <td>JSON, DOM, TRACE, LANG</td>
+        </tr><tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>99</td>
+          <td><a href="#case-7">fx-product-compare-readable</a></td>
+          <td>extract</td>
+          <td>-</td>
+        </tr><tr>
+          <td><span class="badge readable">人能看懂</span></td>
+          <td>93</td>
+          <td><a href="#case-8">09-chatgpt-web-export.json-1002</a></td>
+          <td>chat-ui</td>
+          <td>-</td>
+        </tr><tr>
+          <td><span class="badge unreadable">人看不懂</span></td>
+          <td>28</td>
+          <td><a href="#case-9">09-chatgpt-web-export.json-1003</a></td>
+          <td>chat-ui</td>
+          <td>DOM, TRACE, LANG</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2>逐条暴露原文</h2>
+    
+<article class="case" id="case-0">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>fx-weather-readable</h3>
+      <p class="meta">extract · demo-browser-agent · chromium · 93 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>帮我看一下今天北京天气，要不要带伞？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">今天北京晴到多云，气温 12～21℃，降水概率约 10%，空气质量良。
+
+结论：白天不用带伞。早晚略凉，出门建议加一件薄外套。</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:75%"></b></i><em>75</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:60%"></b></i><em>60</em></div>
+      <h4>内部轨迹摘录</h4><pre class="trace">open https://weather.example.com</pre>
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-1">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>fx-a11y-dump-unreadable</h3>
+      <p class="meta">search · demo-browser-agent · chromium · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。回答主体是无障碍树、HTML 或 CSS 选择器 dump。 用户问题语言与回答语言明显不一致，或界面字符串堆砌。</p>
+  <div class="fails"><span class="tag bad">DOM 无障碍树或 HTML/选择器 dump</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>搜索附近的咖啡店</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">RootWebArea &quot;Google&quot;
+  [heading] Google
+  [combobox] Search
+  [button] Google Se</mark>arch
+  [button] I'm Feeling Lucky
+  [link] Gmail
+  [link] Images
+  html &gt; body &gt; div#app &gt; div.main &gt; form &gt; input.gLFyf
+  [listitem] Starbucks
+  [listitem] Luckin Coffee
+  [button] Directions</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-2">
+  <header>
+    <div class="badge partial">部分能看懂</div>
+    <div>
+      <h3>fx-mixed-partial</h3>
+      <p class="meta">checkout · demo-browser-agent · chromium · 48 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>部分能看懂。回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。</p>
+  <div class="fails"><span class="tag bad">DOM 无障碍树或 HTML/选择器 dump</span> <span class="tag bad">TRACE 工具调用日志当作回答</span> <span class="tag bad">MIX 结论被日志淹没</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>购物车现在多少钱？商品加进去了吗？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">商品已加入购物车，当前合计 ¥128。
+
+```json
+{
+  &quot;tool_call&quot;: &quot;browser_click&quot;,
+  &quot;selector&quot;: &quot;ht</mark>ml &gt; body &gt; div#app &gt; div.checkout &gt; button.add-to-cart&quot;,
+  &quot;action&quot;: &quot;click&quot;,
+  &quot;nth-child(3)&quot;: true,
+  &quot;aria-label&quot;: &quot;Add to cart&quot;,
+  &quot;trace&quot;: [&quot;click&quot;, &quot;wait_for&quot;, &quot;screenshot&quot;]
+}
+```
+RootWebArea &quot;Cart&quot;
+  <mark class="bad">[button]</mark> Checkout
+  [heading] Order summary
+  html &gt; body &gt; div &gt; span.price</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:31%"></b></i><em>31</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:50%"></b></i><em>50</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:29%"></b></i><em>29</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:76%"></b></i><em>76</em></div><div class="dim"><span>任务相关</span><i><b style="width:60%"></b></i><em>60</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-3">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>fx-screenshot-only-unreadable</h3>
+      <p class="meta">extract · demo-browser-agent · chromium · 15 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。终局没有文字，只给了未说明的截图。</p>
+  <div class="fails"><span class="tag bad">SCREEN 截图无文字解释</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>这个页面的标题和第一段在说什么？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><span class="empty">（空）</span></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-4">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>fx-plan-only-unreadable</h3>
+      <p class="meta">search · demo-browser-agent · chromium · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。只宣布下一步操作，没有给出任务结果。</p>
+  <div class="fails"><span class="tag bad">PLAN 只描述下一步操作，无任务结果</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>今天上海会下雨吗？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">好的，我将打开天气网站并点击搜索按钮。</mark></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:55%"></b></i><em>55</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:55%"></b></i><em>55</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:5%"></b></i><em>5</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-5">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>fx-mojibake-unreadable</h3>
+      <p class="meta">extract · demo-browser-agent · chromium · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。出现乱码、替换字符或异常控制字符。</p>
+  <div class="fails"><span class="tag bad">ENC 乱码/替换字符/不可打印字符</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>页面上的活动名称是什么？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">ä»Šå¤©åŒ—äº¬æ™´å¤©æ°”Ã¤Â¸Â­Ã¦â€“â€¡ä¹±ç Ã¥â€ â€¦Ã¥Â®Â¹Ã¤Â¸ÂÃ¥ÂÂ¯Ã¨Â¯Â»</mark></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:30%"></b></i><em>30</em></div><div class="dim"><span>面向用户</span><i><b style="width:45%"></b></i><em>45</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:20%"></b></i><em>20</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-6">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>fx-json-payload-unreadable</h3>
+      <p class="meta">extract · demo-browser-agent · chromium · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。整段回答是原始 JSON。 回答主体是无障碍树、HTML 或 CSS 选择器 dump。</p>
+  <div class="fails"><span class="tag bad">JSON 原始结构化载荷当作回答</span> <span class="tag bad">DOM 无障碍树或 HTML/选择器 dump</span> <span class="tag bad">TRACE 工具调用日志当作回答</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>北京今天气温多少度？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">{&quot;status&quot;:&quot;ok&quot;,&quot;tool_call&quot;:&quot;browser_navigate&quot;,&quot;selector&quot;:&quot;html &gt; body &gt; div#root &gt; span.temp&quot;,&quot;data&quot;:{&quot;city&quot;:&quot;Beijing&quot;,&quot;temp&quot;:21,&quot;aqi&quot;:64}}</mark></pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-7">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>fx-product-compare-readable</h3>
+      <p class="meta">extract · demo-browser-agent · chromium · 99 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>Compare the iPhone 15 and Pixel 8 camera in one short table.</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">Here is a short camera comparison from the product pages:
+
+| Item | iPhone 15 | Pixel 8 |
+| --- | --- | --- |
+| Main sensor | 48 MP | 50 MP |
+| Video | 4K60 | 4K60 |
+| Night mode | Yes | Yes, typically stronger |
+
+Bottom line: Pixel 8 is better in night shots; iPhone 15 is more consistent in video.</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:95%"></b></i><em>95</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:100%"></b></i><em>100</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-8">
+  <header>
+    <div class="badge readable">人能看懂</div>
+    <div>
+      <h3>09-chatgpt-web-export.json-1002</h3>
+      <p class="meta">chat-ui · chatgpt-web · web-ui · 93 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人能看懂。终局回答是自然语言，普通人不用看轨迹也能理解结论。</p>
+  <div class="fails"><span class="tag ok">无硬伤</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>帮我看看明天杭州到上海的高铁还有票吗？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer">明天杭州到上海高铁仍有余票。较宽松的班次是 G7369（08:28 开）和 G7531（14:05 开），二等座都有票。建议优先买早上这趟，行程约 1 小时 15 分。</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>自然语言</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:75%"></b></i><em>75</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:60%"></b></i><em>60</em></div>
+      
+    </section>
+  </div>
+</article>
+
+<article class="case" id="case-9">
+  <header>
+    <div class="badge unreadable">人看不懂</div>
+    <div>
+      <h3>09-chatgpt-web-export.json-1003</h3>
+      <p class="meta">chat-ui · chatgpt-web · web-ui · 28 分 · heuristic</p>
+    </div>
+  </header>
+  <p class="ask"><strong>人能看懂吗？</strong>人看不懂。回答主体是无障碍树、HTML 或 CSS 选择器 dump。 回答主体是工具调用/浏览器操作日志。</p>
+  <div class="fails"><span class="tag bad">DOM 无障碍树或 HTML/选择器 dump</span> <span class="tag bad">TRACE 工具调用日志当作回答</span> <span class="tag bad">LANG 用户无法阅读的语言或界面字符串堆砌</span></div>
+  <div class="grid">
+    <section>
+      <h4>用户问题</h4>
+      <pre>这个报错是什么意思？</pre>
+      <h4>智能体终局回答（用户可见原文）</h4>
+      <pre class="answer"><mark class="bad">browser_click(&quot;html &gt; body &gt; div#root &gt; button.error&quot;)
+Action: screenshot
+[heading]</mark> Error
+[button] Retry
+{&quot;function_call&quot;:&quot;wait_for&quot;,&quot;selector&quot;:&quot;nth-child(2)&quot;}</pre>
+    </section>
+    <section>
+      <h4>维度分</h4>
+      <div class="dim"><span>表面完整</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>面向用户</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>自然语言</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>结论可抽取</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>轨迹隔离</span><i><b style="width:0%"></b></i><em>0</em></div><div class="dim"><span>视觉可解释</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>认知负担</span><i><b style="width:100%"></b></i><em>100</em></div><div class="dim"><span>任务相关</span><i><b style="width:35%"></b></i><em>35</em></div>
+      
+    </section>
+  </div>
+</article>
+  </main>
+</body>
+</html>
